@@ -1,0 +1,17 @@
+# --- Ingestão ---
+feedparser==6.0.11
+requests==2.32.3
+
+# --- Análise / Impacto (API Anthropic) ---
+anthropic==0.40.0
+
+# --- Entrega ---
+python-telegram-bot==21.6
+python-docx==1.1.2
+gspread==6.1.4
+google-auth==2.35.0
+
+# --- Orquestração / Config ---
+APScheduler==3.10.4
+PyYAML==6.0.2
+python-dotenv==1.0.1

@@ -1,0 +1,78 @@
+# =============================================================================
+# Fontes de ingestão por setor.
+# Cada fonte: name, url (RSS/Atom), sector, type (rss), enabled.
+#
+# IMPORTANTE: estes são feeds CANDIDATOS. A Fase 1 valida cada um e reporta
+# quais respondem e quais falham. Nada aqui é assumido como funcional ainda.
+# Para desativar uma fonte sem apagá-la, use `enabled: false`.
+#
+# Setores válidos: energia, petroleo, cyber, fertilizantes, alimentos,
+#                  insumos, exportacoes
+# =============================================================================
+
+defaults:
+  type: rss
+  timeout_seconds: 15
+  user_agent: "GeoIntelMonitor/0.1 (+https://example.com)"
+
+sources:
+  # ----------------------------- ENERGIA --------------------------------------
+  - name: "EIA — Today in Energy"
+    url: "https://www.eia.gov/rss/todayinenergy.xml"
+    sector: energia
+    enabled: true
+
+  - name: "OilPrice — Energy News"
+    url: "https://oilprice.com/rss/main"
+    sector: energia
+    enabled: true
+
+  # ----------------------------- PETRÓLEO -------------------------------------
+  - name: "OilPrice — Crude Oil Prices"
+    url: "https://oilprice.com/rss/crude-oil-news"
+    sector: petroleo
+    enabled: true
+
+  - name: "Rigzone — News"
+    url: "https://www.rigzone.com/news/rss/rigzone_latest.aspx"
+    sector: petroleo
+    enabled: true
+
+  # ------------------------------- CYBER --------------------------------------
+  - name: "CISA — Cybersecurity Advisories"
+    url: "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+    sector: cyber
+    enabled: true
+
+  - name: "BleepingComputer"
+    url: "https://www.bleepingcomputer.com/feed/"
+    sector: cyber
+    enabled: true
+
+  - name: "The Hacker News"
+    url: "https://feeds.feedburner.com/TheHackersNews"
+    sector: cyber
+    enabled: true
+
+  - name: "Krebs on Security"
+    url: "https://krebsonsecurity.com/feed/"
+    sector: cyber
+    enabled: true
+
+  # --------------------------- FERTILIZANTES ----------------------------------
+  - name: "Reuters — Markets (proxy fertilizantes/commodities)"
+    url: "https://feeds.reuters.com/reuters/businessNews"
+    sector: fertilizantes
+    enabled: true
+
+  # ----------------------------- ALIMENTOS ------------------------------------
+  - name: "FAO — News (Food & Agriculture)"
+    url: "https://www.fao.org/feeds/news/en/rss.xml"
+    sector: alimentos
+    enabled: true
+
+  # ---------------------------- EXPORTAÇÕES -----------------------------------
+  - name: "WTO — News"
+    url: "https://www.wto.org/library/rss/latest_news_e.xml"
+    sector: exportacoes
+    enabled: true

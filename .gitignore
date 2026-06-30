@@ -1,0 +1,32 @@
+# Segredos — NUNCA comitar
+.env
+secrets/
+*.json.key
+google-service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Saídas geradas (briefings DOCX, dumps locais)
+out/
+*.docx
+!docs/**/*.docx
+
+# Cache / dedup
+.cache/
+*.sqlite
+*.db
+
+# IDE / SO
+.idea/
+.vscode/
+.DS_Store
