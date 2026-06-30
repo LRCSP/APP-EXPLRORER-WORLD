@@ -151,7 +151,7 @@ def run(eventos: list[Evento], settings: Settings | None = None, batch_size: int
         for inicio in range(0, len(eventos), batch_size):
             lote = eventos[inicio:inicio + batch_size]
             try:
-                dados = _classifica_lote_api(client, settings.anthropic_model, lote)
+                dados = _classifica_lote_api(client, settings.anthropic_model_fast, lote)
                 por_id = {d.get("id"): d for d in dados if isinstance(d, dict)}
                 for i, ev in enumerate(lote):
                     d = por_id.get(i, {})

@@ -66,7 +66,8 @@ def load_sources(path: Path | str = SOURCES_PATH) -> SourcesConfig:
 class Settings:
     """Configuração runtime vinda do ambiente (.env)."""
     anthropic_api_key: str | None = None
-    anthropic_model: str = "claude-opus-4-8"
+    anthropic_model: str = "claude-haiku-4-5"        # impacto (Fase 3)
+    anthropic_model_fast: str = "claude-haiku-4-5"   # classificação/tradução (Fase 2)
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
     google_sa_json_path: str | None = None
@@ -83,7 +84,8 @@ class Settings:
         idiomas = [i.strip().lower() for i in os.getenv("IDIOMAS", "pt,en").split(",") if i.strip()]
         return cls(
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
-            anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-opus-4-8"),
+            anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
+            anthropic_model_fast=os.getenv("ANTHROPIC_MODEL_FAST", "claude-haiku-4-5"),
             telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN"),
             telegram_chat_id=os.getenv("TELEGRAM_CHAT_ID"),
             google_sa_json_path=os.getenv("GOOGLE_SA_JSON_PATH"),
