@@ -3,39 +3,41 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Monitor de Inteligência Geopolítica — protótipo v2</title>
+<title>GEO·INTEL — protótipo v3</title>
 <style>
   :root{
     --bg:#04060c; --bg2:#0a1020; --panel:#0d1424; --line:#1b2742;
     --txt:#eaf0fb; --muted:#8597b8; --accent:#36e0c8; --accent2:#4f8bff;
     --red:#ff5d63; --amber:#ffb443; --green:#37d39b; --grid:rgba(120,150,200,.10);
+    --globeline:rgba(120,160,220,.16);
   }
   [data-theme="light"]{
-    --bg:#eef2f9; --bg2:#ffffff; --panel:#ffffff; --line:#dde4f0;
-    --txt:#0b1426; --muted:#5a6b86; --accent:#0ea5a0; --accent2:#2563eb;
-    --grid:rgba(40,70,120,.10);
+    --bg:#ffffff; --bg2:#f7f9fd; --panel:#ffffff; --line:#e4e9f3;
+    --txt:#0b1426; --muted:#5a6b86; --accent:#0d9488; --accent2:#2563eb;
+    --grid:rgba(40,70,120,.08); --globeline:rgba(40,90,160,.14);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;overflow-x:hidden;transition:background .5s,color .5s}
   .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  a{color:inherit}
 
-  /* moving starfield bg */
-  #stars{position:fixed;inset:0;z-index:-2;opacity:.5}
-  .aura{position:fixed;z-index:-1;width:60vw;height:60vw;border-radius:50%;filter:blur(120px);opacity:.16;
-    background:radial-gradient(circle,var(--accent),transparent 60%);top:-10vw;right:-10vw;transition:transform .2s linear}
-
-  /* progress bar */
+  #stars{position:fixed;inset:0;z-index:-2;opacity:.5;transition:opacity .5s}
+  [data-theme="light"] #stars{opacity:0}
+  .aura{position:fixed;z-index:-1;width:60vw;height:60vw;border-radius:50%;filter:blur(130px);opacity:.15;
+    background:radial-gradient(circle,var(--accent2),transparent 62%);top:-12vw;right:-10vw}
+  [data-theme="light"] .aura{opacity:.08}
   #prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 12px var(--accent)}
 
   header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-    padding:16px 28px;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-bottom:1px solid var(--line)}
+    padding:15px 28px;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
   .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px}
   .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
-  .brand small{color:var(--muted);font-weight:500;letter-spacing:0}
-  .toggle{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);padding:8px 14px;border-radius:999px;font-size:13px}
+  .brand small{color:var(--muted);font-weight:500}
+  .nav{display:flex;gap:10px;align-items:center}
+  .toggle,.login{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);padding:8px 14px;border-radius:999px;font-size:13px}
+  .login{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121a;border:none;font-weight:700}
 
-  /* hero */
   .hero{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;position:relative}
   .kicker{color:var(--accent);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px}
   .hero h1{font-size:clamp(36px,5.4vw,72px);line-height:1.0;font-weight:800;letter-spacing:-1.5px}
@@ -44,81 +46,138 @@
   .cta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
   .btn{padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;border:1px solid var(--line);text-decoration:none;color:var(--txt)}
   .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121a;border:none}
-  #globe{width:100%;max-width:520px;aspect-ratio:1;margin-left:auto;display:block;will-change:transform}
-  .scrollhint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;animation:bob 1.8s infinite}
+  #globe{width:100%;max-width:540px;aspect-ratio:1;margin-left:auto;display:block;will-change:transform}
+  .scrollhint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;animation:bob 1.8s infinite}
   @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
 
-  section.block{padding:130px 0;border-top:1px solid var(--line);position:relative}
+  section.block{padding:120px 0;border-top:1px solid var(--line);position:relative}
   .eyebrow{color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
-  .block h2{font-size:clamp(28px,3.6vw,48px);font-weight:800;letter-spacing:-.6px;max-width:780px}
+  .block h2{font-size:clamp(26px,3.5vw,46px);font-weight:800;letter-spacing:-.6px;max-width:780px}
   .block .lead{color:var(--muted);font-size:17px;margin-top:14px;max-width:640px}
-
   .reveal{opacity:0;transform:translateY(40px);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
 
-  /* charts */
-  .charts{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:46px}
-  .chart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 14px;position:relative;overflow:hidden}
-  .chart .top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:42px}
+  .chart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px 20px 12px;position:relative;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s}
+  .chart:hover{transform:translateY(-4px);border-color:var(--accent)}
+  .chart .arrow{position:absolute;top:16px;right:18px;color:var(--muted);font-size:15px}
+  .chart .top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px}
   .chart .label{font-size:13px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-  .chart .price{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .chart .price{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px}
   .chart .chg{font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
-  .chart canvas{width:100%;height:150px;display:block}
-  .chart .foot{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:6px}
+  .chart canvas{width:100%;height:140px;display:block}
+  .chart .foot{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
   .up{color:var(--green)} .down{color:var(--red)}
 
-  /* sectors */
-  .sector{position:relative;border-radius:22px;padding:46px;margin-top:34px;border:1px solid var(--line);overflow:hidden;background:var(--bg2)}
+  .mini{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:38px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:transform .25s,border-color .25s}
+  .stat:hover{transform:translateY(-4px);border-color:var(--accent)}
+  .stat .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px}
+  .stat .v{font-size:24px;font-weight:800;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+  .stat canvas{width:100%;height:42px;display:block;margin-top:8px}
+
+  .experts{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:42px}
+  .exp{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:10px}
+  .exp .who{display:flex;align-items:center;gap:12px}
+  .exp .ava{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));flex:none}
+  .exp .who b{font-size:15px} .exp .who span{display:block;color:var(--muted);font-size:12px}
+  .exp .area{align-self:flex-start;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+  .exp p{font-size:14.5px;color:var(--txt)}
+  .exp .src{margin-top:auto;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;padding-top:8px;border-top:1px solid var(--line)}
+  .exp .src a{color:var(--accent);text-decoration:none;font-weight:600}
+
+  .sector{position:relative;border-radius:22px;padding:42px;margin-top:30px;border:1px solid var(--line);overflow:hidden;background:var(--bg2)}
   .sector .tag{display:inline-block;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-  .sector h3{font-size:26px;margin:16px 0 6px;font-weight:800}
-  .sector .meta{color:var(--muted);font-size:14px;margin-bottom:22px}
-  .impact{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .impact .cell{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .sector h3{font-size:25px;margin:16px 0 6px;font-weight:800}
+  .sector .meta{color:var(--muted);font-size:14px;margin-bottom:20px}
+  .impact{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .impact .cell{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
   .impact .cell b{display:block;color:var(--accent);font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
   .impact .cell span{font-size:14.5px}
   .glow{position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(100px);opacity:.16;right:-90px;top:-130px}
 
-  footer{padding:60px 0;border-top:1px solid var(--line);color:var(--muted);text-align:center;font-size:14px}
+  /* modal */
+  #modal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(2,5,12,.72);backdrop-filter:blur(6px);padding:20px}
+  #modal.on{display:flex}
+  .sheet{background:var(--bg2);border:1px solid var(--line);border-radius:22px;max-width:760px;width:100%;padding:26px;position:relative}
+  .sheet .x{position:absolute;top:16px;right:18px;cursor:pointer;color:var(--muted);font-size:20px}
+  .sheet h3{font-size:24px;font-weight:800}
+  .sheet .big{width:100%;height:240px;display:block;margin:16px 0}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .grid4 .b{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .grid4 .b .l{color:var(--muted);font-size:11px;text-transform:uppercase} .grid4 .b .v{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+  .lock{margin-top:16px;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:14px;color:var(--txt)}
+
+  footer{padding:54px 0;border-top:1px solid var(--line);color:var(--muted);text-align:center;font-size:14px}
+
+  @media(max-width:820px){
+    .wrap{padding:0 18px}
+    .hero{grid-template-columns:1fr;text-align:left;padding-top:90px;min-height:auto;gap:6px}
+    #globe{order:-1;max-width:300px;margin:0 0 6px}
+    section.block{padding:80px 0}
+    .charts,.experts{grid-template-columns:1fr}
+    .mini{grid-template-columns:1fr 1fr}
+    .impact,.grid4{grid-template-columns:1fr 1fr}
+    .sector{padding:26px}
+    header{padding:12px 16px}
+    .brand small{display:none}
+  }
 </style>
 </head>
 <body>
 <canvas id="stars"></canvas>
-<div class="aura" id="aura"></div>
+<div class="aura"></div>
 <div id="prog"></div>
 
 <header>
-  <div class="brand"><span class="dot"></span>GEO<span style="opacity:.55">·</span>INTEL <small>protótipo&nbsp;v2</small></div>
-  <div class="toggle" id="themeBtn">🌙 Escuro</div>
+  <div class="brand"><span class="dot"></span>GEO<span style="opacity:.55">·</span>INTEL <small>protótipo&nbsp;v3</small></div>
+  <div class="nav">
+    <div class="toggle" id="themeBtn">🌙 Escuro</div>
+    <div class="login">Entrar</div>
+  </div>
 </header>
 
 <div class="wrap">
   <div class="hero">
     <div id="heroText">
-      <div class="kicker">Inteligência geopolítica operacional</div>
-      <h1>O mundo em movimento, <span>traduzido em ação</span> para a sua empresa.</h1>
-      <p>Energia, petróleo, cyber, alimentos e mercado — monitorados, classificados por severidade e transformados em impacto de custo, cadeia e decisão. Todo dia.</p>
-      <div class="cta">
-        <a class="btn primary">Ver briefing de hoje</a>
-        <a class="btn">Entrar</a>
-      </div>
+      <div class="kicker">Inteligência geopolítica & financeira</div>
+      <h1>O mundo em movimento, <span>traduzido em ação</span>.</h1>
+      <p>Geopolítica, mercado, commodities e custo de vida — monitorados, classificados por severidade e transformados em impacto para a sua empresa. Todo dia.</p>
+      <div class="cta"><a class="btn primary">Ver briefing de hoje</a><a class="btn">Criar conta</a></div>
     </div>
-    <canvas id="globe" width="1040" height="1040"></canvas>
+    <canvas id="globe" width="1080" height="1080"></canvas>
   </div>
 </div>
 <div class="scrollhint">↓ role para explorar</div>
 
-<!-- MERCADO: linhas XY -->
+<!-- MERCADO -->
 <section class="block" id="secMarket">
   <div class="wrap">
-    <div class="eyebrow reveal">Mercado · últimos 30 dias</div>
-    <h2 class="reveal">A evolução das moedas — picos e quedas.</h2>
-    <p class="lead reveal">As linhas se desenham conforme você rola. Dados reais do dólar e do euro.</p>
-    <div class="charts">
-      <div class="chart reveal" data-key="USD" data-name="Dólar · USD/BRL"><div class="top"><div><div class="label">Dólar · USD/BRL</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
-      <div class="chart reveal" data-key="EUR" data-name="Euro · EUR/BRL"><div class="top"><div><div class="label">Euro · EUR/BRL</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
-      <div class="chart reveal" data-key="IBOV" data-name="Ibovespa"><div class="top"><div><div class="label">Ibovespa</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
-      <div class="chart reveal" data-key="BTC" data-name="Bitcoin · USD"><div class="top"><div><div class="label">Bitcoin · USD</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
-    </div>
+    <div class="eyebrow reveal">Mercado · 30 dias · clique para detalhar</div>
+    <h2 class="reveal">Câmbio e índices, com picos e quedas.</h2>
+    <p class="lead reveal">As linhas se desenham conforme você rola. Clique em qualquer card — a versão completa (todos os ativos) abre após o login.</p>
+    <div class="charts" id="marketCharts"></div>
+  </div>
+</section>
+
+<!-- BRASIL: commodities + custo de vida -->
+<section class="block">
+  <div class="wrap">
+    <div class="eyebrow reveal">Brasil · custo de vida & commodities</div>
+    <h2 class="reveal">Inflação, cesta básica e o que move o agro.</h2>
+    <p class="lead reveal">Marcadores que pesam no bolso e na operação. Commodities com dados reais; inflação e cesta entram via IBGE/DIEESE.</p>
+    <div class="mini" id="miniBR"></div>
+    <div class="charts" id="commCharts" style="margin-top:20px"></div>
+  </div>
+</section>
+
+<!-- ESPECIALISTAS -->
+<section class="block">
+  <div class="wrap">
+    <div class="eyebrow reveal">Vozes do dia</div>
+    <h2 class="reveal">Análises de especialistas — resumo aqui, matéria completa na fonte.</h2>
+    <p class="lead reveal">A IA resume o que os especialistas estão dizendo (geopolítica e finanças) e sempre leva você à fonte original.</p>
+    <div class="experts" id="experts"></div>
   </div>
 </section>
 
@@ -135,132 +194,177 @@
       <div class="impact">
         <div class="cell"><b>💰 Custo</b><span>Remediação, investigação e potenciais multas regulatórias.</span></div>
         <div class="cell"><b>🔗 Cadeia</b><span>Parceiros que usam Splunk podem ter operações interrompidas.</span></div>
-        <div class="cell"><b>🛡️ Cyber</b><span>Exploração ativa: risco direto a dados e integridade dos sistemas.</span></div>
-        <div class="cell"><b>✅ Ação</b><span>Aplicar o patch da CVE imediatamente em todas as instâncias.</span></div>
-      </div>
-    </div>
-    <div class="sector reveal">
-      <div class="glow" style="background:var(--amber)"></div>
-      <span class="tag">Energia · Global · Severidade 4/5</span>
-      <h3>Saída dos Emirados do OPEP+ reduz participação do grupo no petróleo</h3>
-      <div class="meta">Relevância 8/10 · fonte: OilPrice</div>
-      <div class="impact">
-        <div class="cell"><b>💰 Custo</b><span>Pode desestabilizar preços e elevar o custo de energia da empresa.</span></div>
-        <div class="cell"><b>🔗 Cadeia</b><span>Volatilidade encarece frete e prazos de importação.</span></div>
-        <div class="cell"><b>🛡️ Cyber</b><span>Sem exposição direta relevante.</span></div>
-        <div class="cell"><b>✅ Ação</b><span>Reavaliar projeções de custo e diversificar fornecedores.</span></div>
+        <div class="cell"><b>🛡️ Cyber</b><span>Exploração ativa: risco direto a dados e sistemas.</span></div>
+        <div class="cell"><b>✅ Ação</b><span>Aplicar o patch da CVE imediatamente.</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<footer><div class="wrap">Protótipo v2 · GEO·INTEL — scroll cinematográfico, gráficos XY com dados reais, tema escuro/claro. Login e briefing real nas próximas etapas.</div></footer>
+<footer><div class="wrap">Protótipo v3 · GEO·INTEL — globo de continentes, gráficos clicáveis, commodities reais, especialistas. Login e dados ao vivo nas próximas etapas.</div></footer>
+
+<!-- MODAL -->
+<div id="modal"><div class="sheet"><span class="x" id="modalX">✕</span>
+  <h3 id="mTitle"></h3><div id="mChg" style="color:var(--muted);margin-top:4px"></div>
+  <canvas class="big" id="mCanvas"></canvas>
+  <div class="grid4" id="mStats"></div>
+  <div class="lock">🔒 <b>Após o login</b>, este gráfico abre completo: histórico longo, todos os ativos (ações, índices, câmbio, cripto, commodities), inflação e cesta básica — tudo bem detalhado, com análises de especialistas vinculadas.</div>
+</div></div>
 
 <script>
-const SERIES = {"USD": [5.0392, 5.0386, 5.0207, 5.0774, 5.0607, 5.177, 5.2031, 5.1901, 5.1921, 5.1138, 5.0609, 5.0751, 5.1019, 5.1221, 5.1815, 5.1514, 5.1565, 5.1977, 5.2075, 5.1941, 5.1707, 5.1682], "EUR": [5.8651, 5.8582, 5.8309, 5.8893, 5.872, 5.963, 5.9916, 5.9809, 5.9844, 5.9137, 5.8685, 5.8789, 5.9172, 5.8893, 5.9312, 5.8962, 5.8893, 5.9102, 5.9067, 5.8962, 5.8824, 5.9002], "IBOV": [172198.0, 174198.0, 170331.0, 169019.0, 168669.0, 169813.0, 168619.0, 171497.0, 171133.0, 170415.0, 169649.0, 168454.0, 168278.0, 168576.0, 170370.0, 171259.0, 170507.0, 171990.0, 173295.0, 173205.0, 172183.3438], "BTC": [73754.8359, 73579.6875, 71319.7734, 66703.6562, 64014.3672, 63801.5742, 60922.668, 60867.4141, 63239.5195, 63090.5898, 61643.7812, 61449.2891, 63561.0547, 63543.1992, 64421.3242, 65710.3984, 66289.5, 65600.6406, 64418.4453, 62896.4727, 63540.8359, 64239.6758, 63237.5391, 63952.1055, 62668.0195, 60995.1328, 59721.6758, 60016.4297, 59940.0977, 59532.3398, 60138.3789, 58649.2812]};
+const SERIES = {"USD":[5.0392,5.0386,5.0207,5.0774,5.0607,5.177,5.2031,5.1901,5.1921,5.1138,5.0609,5.0751,5.1019,5.1221,5.1815,5.1514,5.1565,5.1977,5.2075,5.1941,5.1707,5.1682],"EUR":[5.8651,5.8582,5.8309,5.8893,5.872,5.963,5.9916,5.9809,5.9844,5.9137,5.8685,5.8789,5.9172,5.8893,5.9312,5.8962,5.8893,5.9102,5.9067,5.8962,5.8824,5.9002],"IBOV":[172198.0,174198.0,170331.0,169019.0,168669.0,169813.0,168619.0,171497.0,171133.0,170415.0,169649.0,168454.0,168278.0,168576.0,170370.0,171259.0,170507.0,171990.0,173295.0,173205.0,172183.3438],"BTC":[73754.8359,73579.6875,71319.7734,66703.6562,64014.3672,63801.5742,60922.668,60867.4141,63239.5195,63090.5898,61643.7812,61449.2891,63561.0547,63543.1992,64421.3242,65710.3984,66289.5,65600.6406,64418.4453,62896.4727,63540.8359,64239.6758,63237.5391,63952.1055,62668.0195,60995.1328,59721.6758,60016.4297,59940.0977,59532.3398,60138.3789,58649.2812],"SOJA":[1180.75,1165.25,1154.0,1129.5,1121.5,1115.75,1113.75,1123.0,1115.0,1113.5,1119.25,1130.0,1132.0,1122.75,1115.75,1117.0,1108.75,1127.5,1126.25,1108.75,1143.5],"MILHO":[444.0,440.5,431.5,424.5,417.5,418.75,419.5,419.0,411.75,412.75,415.5,413.75,421.0,417.5,411.5,409.75,407.0,414.75,412.75,402.0,436.5],"CAFE":[260.6,259.2,253.1,247.15,246.5,245.9,244.4,248.4,253.95,257.2,262.95,277.25,277.85,275.1,277.0,287.95,291.55,288.8,286.75,291.1,302.15],"BOI":[249.0,247.68,246.62,249.18,250.07,246.52,248.02,250.1,251.48,249.88,250.62,255.3,255.73,254.8,255.82,255.15,256.0,257.4,257.45,257.4,242.25],"OURO":[4475.2,4489.1,4436.7,4475.8,4337.1,4335.9,4260.0,4108.2,4090.3,4215.0,4328.0,4330.9,4358.9,4224.1,4181.9,4129.9,3990.3,4030.5,4078.7,4022.3,4028.5]};
 const root=document.documentElement, tb=document.getElementById('themeBtn');
 const cssv=n=>getComputedStyle(root).getPropertyValue(n).trim();
 tb.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';root.setAttribute('data-theme',d?'light':'dark');tb.innerHTML=d?'☀️ Claro':'🌙 Escuro';};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
 
-/* ---------- helpers ---------- */
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const lerp=(a,b,t)=>a+(b-a)*t;
-function fmt(key,v){
-  if(key==='USD'||key==='EUR') return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  if(key==='IBOV') return Math.round(v).toLocaleString('pt-BR');
-  return '$'+Math.round(v).toLocaleString('pt-BR');
-}
+const META={
+  USD:{name:'Dólar · USD/BRL',dec:2,pre:'R$ '}, EUR:{name:'Euro · EUR/BRL',dec:2,pre:'R$ '},
+  IBOV:{name:'Ibovespa',dec:0,pre:''}, BTC:{name:'Bitcoin · USD',dec:0,pre:'US$ '},
+  SOJA:{name:'Soja (CBOT)',dec:1,pre:''}, MILHO:{name:'Milho (CBOT)',dec:1,pre:''},
+  CAFE:{name:'Café (ICE)',dec:1,pre:''}, BOI:{name:'Boi gordo (CME)',dec:1,pre:''}, OURO:{name:'Ouro',dec:0,pre:'US$ '},
+};
+const fmt=(k,v)=>{const m=META[k]||{dec:2,pre:''};return m.pre+v.toLocaleString('pt-BR',{minimumFractionDigits:m.dec,maximumFractionDigits:m.dec});};
 
-/* ---------- reveal ---------- */
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.18});
+/* reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.16});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-/* ---------- charts ---------- */
-const charts=[...document.querySelectorAll('.chart')].map(el=>{
-  const key=el.dataset.key, data=SERIES[key]||[];
-  const cv=el.querySelector('canvas'); const ctx=cv.getContext('2d');
-  const lo=Math.min(...data), hi=Math.max(...data);
-  el.querySelector('.foot .lo').textContent='mín '+fmt(key,lo);
-  el.querySelector('.foot .hi').textContent='máx '+fmt(key,hi);
-  const first=data[0], last=data[data.length-1], chg=(last-first)/first*100;
-  const chgEl=el.querySelector('.chg'); const up=chg>=0;
-  chgEl.textContent=(up?'▲ +':'▼ ')+chg.toFixed(2)+'%'; chgEl.classList.add(up?'up':'down');
-  return {el,key,data,ctx,cv,lo,hi,priceEl:el.querySelector('.price'),up};
-});
-function drawChart(c,prog){
-  const {ctx,cv,data,lo,hi,up}=c;
-  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
-  if(cv.width!==W*dpr){cv.width=W*dpr;cv.height=H*dpr;}
-  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
-  const pad=10, span=(hi-lo)||1;
-  const X=i=>pad+(W-2*pad)*(i/(data.length-1));
-  const Y=v=>H-pad-(H-2*pad)*((v-lo)/span);
-  // grid
+/* ---- line chart ---- */
+function drawLine(ctx,W,H,data,prog,up){
+  const dpr=window.devicePixelRatio||1;
+  ctx.canvas.width=W*dpr;ctx.canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  const lo=Math.min(...data),hi=Math.max(...data),span=(hi-lo)||1,pad=8;
+  const X=i=>pad+(W-2*pad)*(i/(data.length-1)), Y=v=>H-pad-(H-2*pad)*((v-lo)/span);
   ctx.strokeStyle=cssv('--grid');ctx.lineWidth=1;
-  for(let g=0;g<=3;g++){const y=pad+(H-2*pad)*g/3;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
-  // how many points to draw
-  const n=clamp(prog,0,1)*(data.length-1); const full=Math.floor(n), frac=n-full;
-  const col=up?cssv('--green'):cssv('--accent');
-  // area
-  ctx.beginPath();ctx.moveTo(X(0),Y(data[0]));
-  for(let i=1;i<=full;i++)ctx.lineTo(X(i),Y(data[i]));
+  for(let g=0;g<=2;g++){const y=pad+(H-2*pad)*g/2;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+  const n=clamp(prog,0,1)*(data.length-1),full=Math.floor(n),frac=n-full,col=up?cssv('--green'):cssv('--red');
   let ex=X(full),ey=Y(data[full]);
-  if(full<data.length-1){ex=lerp(X(full),X(full+1),frac);ey=lerp(Y(data[full]),Y(data[full+1]),frac);ctx.lineTo(ex,ey);}
+  if(full<data.length-1){ex=lerp(X(full),X(full+1),frac);ey=lerp(Y(data[full]),Y(data[full+1]),frac);}
+  ctx.beginPath();ctx.moveTo(X(0),Y(data[0]));for(let i=1;i<=full;i++)ctx.lineTo(X(i),Y(data[i]));ctx.lineTo(ex,ey);
   const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,col+'55');grad.addColorStop(1,col+'00');
   ctx.lineTo(ex,H-pad);ctx.lineTo(X(0),H-pad);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
-  // line
-  ctx.beginPath();ctx.moveTo(X(0),Y(data[0]));
-  for(let i=1;i<=full;i++)ctx.lineTo(X(i),Y(data[i]));
-  if(full<data.length-1)ctx.lineTo(ex,ey);
-  ctx.strokeStyle=col;ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.shadowColor=col;ctx.shadowBlur=12;ctx.stroke();ctx.shadowBlur=0;
-  // moving dot
-  ctx.fillStyle=col;ctx.beginPath();ctx.arc(ex,ey,4.5,0,7);ctx.fill();
-  ctx.globalAlpha=.3;ctx.beginPath();ctx.arc(ex,ey,10,0,7);ctx.fill();ctx.globalAlpha=1;
-  // price number follows the drawing
-  const curVal=full<data.length-1?lerp(data[full],data[full+1],frac):data[data.length-1];
-  c.priceEl.textContent=fmt(c.key,curVal);
+  ctx.beginPath();ctx.moveTo(X(0),Y(data[0]));for(let i=1;i<=full;i++)ctx.lineTo(X(i),Y(data[i]));ctx.lineTo(ex,ey);
+  ctx.strokeStyle=col;ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.shadowColor=col;ctx.shadowBlur=10;ctx.stroke();ctx.shadowBlur=0;
+  ctx.fillStyle=col;ctx.beginPath();ctx.arc(ex,ey,4,0,7);ctx.fill();
+  return full<data.length-1?lerp(data[full],data[full+1],frac):data[data.length-1];
 }
 
-/* ---------- starfield ---------- */
-const sky=document.getElementById('stars'),sx=sky.getContext('2d');let stars=[];
-function initStars(){sky.width=innerWidth;sky.height=innerHeight;stars=[...Array(140)].map(()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.4+.2,s:Math.random()*.4+.05}));}
-initStars();addEventListener('resize',()=>{initStars();});
+/* build cards */
+function card(key){
+  const d=SERIES[key]||[],up=d[d.length-1]>=d[0],chg=(d[d.length-1]-d[0])/d[0]*100;
+  const el=document.createElement('div');el.className='chart reveal';el.dataset.key=key;
+  el.innerHTML=`<span class="arrow">↗</span>
+    <div class="top"><div><div class="label">${META[key].name}</div><div class="price">—</div></div>
+    <div class="chg ${up?'up':'down'}">${up?'▲ +':'▼ '}${chg.toFixed(2)}%</div></div>
+    <canvas></canvas>
+    <div class="foot"><span>mín ${fmt(key,Math.min(...d))}</span><span>máx ${fmt(key,Math.max(...d))}</span></div>`;
+  el.onclick=()=>openModal(key);
+  return el;
+}
+['USD','EUR','IBOV','BTC'].forEach(k=>document.getElementById('marketCharts').appendChild(card(k)));
+['SOJA','MILHO','CAFE','BOI'].forEach(k=>document.getElementById('commCharts').appendChild(card(k)));
+const chartEls=[...document.querySelectorAll('.chart')].map(el=>({el,key:el.dataset.key,ctx:el.querySelector('canvas').getContext('2d'),price:el.querySelector('.price'),up:(SERIES[el.dataset.key].slice(-1)[0]>=SERIES[el.dataset.key][0])}));
+document.querySelectorAll('.chart').forEach(el=>io.observe(el));
 
-/* ---------- globe ---------- */
-const gl=document.getElementById('globe'),gx=gl.getContext('2d');
-const NP=1000,pts=[];for(let i=0;i<NP;i++){const y=1-(i/(NP-1))*2,r=Math.sqrt(1-y*y),th=Math.PI*(3-Math.sqrt(5))*i;pts.push({x:Math.cos(th)*r,y,z:Math.sin(th)*r,hot:Math.random()<0.05});}
-let ang=0;
+/* Brasil mini stats (ilustrativos p/ inflação e cesta; commodities reais) */
+const miniBR=[
+  {l:'IPCA · 12 meses',v:'4,52%',spark:[4.1,4.2,4.3,4.4,4.5,4.6,4.52],up:true,note:'IBGE'},
+  {l:'Cesta básica · SP',v:'R$ 851',spark:[810,820,835,840,848,855,851],up:false,note:'DIEESE'},
+  {l:'Café (ICE) · mês',v:'+15,9%',spark:SERIES.CAFE,up:true,note:'real'},
+  {l:'Ouro · mês',v:'-10,0%',spark:SERIES.OURO,up:false,note:'real'},
+];
+miniBR.forEach(s=>{
+  const el=document.createElement('div');el.className='stat reveal';
+  el.innerHTML=`<div class="l">${s.l}</div><div class="v">${s.v}</div><canvas></canvas>`;
+  document.getElementById('miniBR').appendChild(el);io.observe(el);
+  const ctx=el.querySelector('canvas').getContext('2d');
+  requestAnimationFrame(()=>drawLine(ctx,el.clientWidth-36,42,s.spark,1,s.up));
+});
 
-/* ---------- main loop (movimento ligado ao scroll) ---------- */
-function loop(){
-  const sy=window.scrollY, vh=innerHeight, dh=document.body.scrollHeight-vh;
-  document.getElementById('prog').style.width=clamp(sy/dh,0,1)*100+'%';
-  // aura segue o scroll
-  document.getElementById('aura').style.transform=`translateY(${sy*0.25}px) scale(${1+sy/4000})`;
-  // hero parallax
-  const ht=document.getElementById('heroText'); const hp=clamp(sy/vh,0,1);
-  ht.style.transform=`translateY(${sy*0.25}px)`;ht.style.opacity=String(1-hp*0.9);
+/* especialistas (exemplos rotulados; versão real puxa fontes citadas) */
+const experts=[
+  {a:'Geopolítica',n:'Analista de energia',o:'Casa de research (exemplo)',p:'Saída dos Emirados do OPEP+ tende a aumentar a volatilidade do petróleo no curto prazo; atenção a contratos de energia.',src:'OilPrice'},
+  {a:'Finanças',n:'Economista-chefe',o:'Gestora (exemplo)',p:'Café em alta de dois dígitos no mês pressiona indústria de alimentos; repasse ao consumidor é provável.',src:'Reuters'},
+  {a:'Cyber',n:'Pesquisador de segurança',o:'CERT (exemplo)',p:'Exploração ativa de falha no Splunk eleva risco para quem usa o produto; priorizar o patch.',src:'CISA'},
+];
+experts.forEach(e=>{
+  const el=document.createElement('div');el.className='exp reveal';
+  el.innerHTML=`<span class="area">${e.a}</span>
+    <div class="who"><div class="ava"></div><div><b>${e.n}</b><span>${e.o}</span></div></div>
+    <p>"${e.p}"</p>
+    <div class="src"><span>fonte: ${e.src}</span><a href="#">ler completa ↗</a></div>`;
+  document.getElementById('experts').appendChild(el);io.observe(el);
+});
 
-  // starfield drift
-  sx.clearRect(0,0,sky.width,sky.height);
-  sx.fillStyle=cssv('--muted');
-  stars.forEach(st=>{st.y+=st.s;if(st.y>sky.height)st.y=0;sx.globalAlpha=.5*st.r;sx.beginPath();sx.arc(st.x,(st.y+sy*0.04)%sky.height,st.r,0,7);sx.fill();});
-  sx.globalAlpha=1;
+/* MODAL */
+const modal=document.getElementById('modal');
+function openModal(key){
+  const d=SERIES[key];const up=d.slice(-1)[0]>=d[0];const chg=(d.slice(-1)[0]-d[0])/d[0]*100;
+  document.getElementById('mTitle').textContent=META[key].name;
+  document.getElementById('mChg').innerHTML=`Atual <b>${fmt(key,d.slice(-1)[0])}</b> · 30 dias <b style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${chg.toFixed(2)}%</b>`;
+  document.getElementById('mStats').innerHTML=[['Atual',fmt(key,d.slice(-1)[0])],['Mínimo',fmt(key,Math.min(...d))],['Máximo',fmt(key,Math.max(...d))],['Pontos',d.length+' dias']].map(([l,v])=>`<div class="b"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
+  modal.classList.add('on');
+  const c=document.getElementById('mCanvas');requestAnimationFrame(()=>drawLine(c.getContext('2d'),c.clientWidth,240,d,1,up));
+}
+document.getElementById('modalX').onclick=()=>modal.classList.remove('on');
+modal.onclick=e=>{if(e.target===modal)modal.classList.remove('on');};
 
-  // globo: gira sempre, escala/translada com scroll
-  const W=gl.width,H=gl.height,cx=W/2,cy=H/2,R=W*0.40*(1+hp*0.15);
-  gx.clearRect(0,0,W,H);ang+=0.0024+hp*0.004;
-  const ca=Math.cos(ang),sa=Math.sin(ang),A=cssv('--accent'),A2=cssv('--accent2');
-  gl.style.transform=`translateY(${sy*0.08}px) rotateZ(${sy*0.01}deg)`;
-  pts.forEach(p=>{const x=p.x*ca-p.z*sa,z=p.x*sa+p.z*ca,y=p.y;const d=(z+1)/2;const Sx=cx+x*R,Sy=cy+y*R;const sz=(p.hot?2.8:1.5)*(0.45+d);
-    gx.globalAlpha=0.12+d*0.85;gx.fillStyle=p.hot?A:(d>0.5?A2:(root.getAttribute('data-theme')==='light'?'#7a90c0':'#46608f'));
-    gx.beginPath();gx.arc(Sx,Sy,sz,0,7);gx.fill();
-    if(p.hot&&d>0.6){gx.globalAlpha=0.22;gx.beginPath();gx.arc(Sx,Sy,sz*3.2,0,7);gx.fill();}});
+/* ===== GLOBO DE CONTINENTES ===== */
+const CONT=[
+ {c:'#4f8bff',p:[[-168,66],[-150,71],[-125,70],[-95,73],[-80,68],[-60,60],[-53,47],[-66,45],[-75,35],[-81,25],[-97,16],[-105,20],[-117,32],[-124,40],[-130,54],[-150,59],[-168,66]]},
+ {c:'#36c5e0',p:[[-78,8],[-70,11],[-60,8],[-50,0],[-44,-3],[-35,-7],[-39,-15],[-48,-25],[-58,-34],[-66,-45],[-70,-52],[-74,-50],[-72,-30],[-76,-14],[-81,-5],[-79,2],[-78,8]]},
+ {c:'#6aa9ff',p:[[-10,36],[-9,43],[-2,48],[2,51],[-2,58],[7,62],[18,69],[28,71],[40,67],[44,58],[42,48],[35,46],[28,41],[20,40],[14,40],[3,42],[-6,38],[-10,36]]},
+ {c:'#2f7be0',p:[[-17,21],[-16,14],[-10,6],[-2,5],[8,4],[13,-5],[14,-17],[19,-34],[24,-34],[31,-29],[36,-20],[40,-15],[42,-2],[51,12],[44,11],[37,16],[34,28],[32,31],[25,32],[15,33],[2,36],[-6,35],[-13,28],[-17,21]]},
+ {c:'#57d6e6',p:[[28,41],[40,42],[48,40],[55,26],[60,25],[68,24],[77,8],[80,12],[92,21],[98,9],[104,1],[109,12],[119,5],[122,15],[122,40],[135,35],[140,45],[143,53],[156,59],[180,68],[150,60],[110,73],[75,73],[55,68],[48,55],[40,48],[33,45],[28,41]]},
+ {c:'#79b4ff',p:[[113,-22],[122,-18],[130,-12],[142,-11],[146,-18],[151,-24],[153,-28],[150,-37],[143,-39],[137,-36],[129,-32],[120,-34],[114,-35],[113,-28],[113,-22]]},
+ {c:'#4f8bff',p:[[-45,60],[-30,70],[-20,76],[-45,82],[-60,80],[-55,68],[-45,60]]},
+];
+function pip(x,y,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
+const land=[];
+for(let lat=-56;lat<=80;lat+=2.4)for(let lon=-180;lon<=180;lon+=2.4){
+  for(const k of CONT){if(pip(lon,lat,k.p)){const la=lat*Math.PI/180,lo=lon*Math.PI/180;
+    land.push({x:Math.cos(la)*Math.sin(lo),y:Math.sin(la),z:Math.cos(la)*Math.cos(lo),c:k.c});break;}}
+}
+const EVENTS=[[-77,38],[4,50],[54,24],[121,31],[-47,-15]].map(([lon,lat])=>{const la=lat*Math.PI/180,lo=lon*Math.PI/180;return{x:Math.cos(la)*Math.sin(lo),y:Math.sin(la),z:Math.cos(la)*Math.cos(lo)};});
+const gl=document.getElementById('globe'),gx=gl.getContext('2d');let ang=-0.3,t=0;
+function rot(p,ca,sa){return{x:p.x*ca+p.z*sa,y:p.y,z:-p.x*sa+p.z*ca};}
+function drawGlobe(){
+  const W=gl.width,H=gl.height,cx=W/2,cy=H/2,hp=clamp(scrollY/innerHeight,0,1),R=W*0.40*(1+hp*0.12);
+  gx.clearRect(0,0,W,H);ang+=0.0022;t+=0.05;const ca=Math.cos(ang),sa=Math.sin(ang);
+  // disco de oceano
+  const og=gx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.2,cx,cy,R);
+  og.addColorStop(0,'rgba(20,40,80,0.25)');og.addColorStop(1,'rgba(5,12,28,0.10)');
+  gx.fillStyle=og;gx.beginPath();gx.arc(cx,cy,R,0,7);gx.fill();
+  // graticule (meridianos/paralelos)
+  gx.strokeStyle=cssv('--globeline');gx.lineWidth=1;
+  for(let mer=-150;mer<=180;mer+=30){gx.beginPath();let s=false;for(let la=-90;la<=90;la+=4){const r=rot({x:Math.cos(la*Math.PI/180)*Math.sin(mer*Math.PI/180),y:Math.sin(la*Math.PI/180),z:Math.cos(la*Math.PI/180)*Math.cos(mer*Math.PI/180)},ca,sa);if(r.z<0){s=false;continue;}const X=cx+r.x*R,Y=cy-r.y*R;s?gx.lineTo(X,Y):gx.moveTo(X,Y);s=true;}gx.stroke();}
+  for(let par=-60;par<=60;par+=30){gx.beginPath();let s=false;for(let lo=-180;lo<=180;lo+=4){const r=rot({x:Math.cos(par*Math.PI/180)*Math.sin(lo*Math.PI/180),y:Math.sin(par*Math.PI/180),z:Math.cos(par*Math.PI/180)*Math.cos(lo*Math.PI/180)},ca,sa);if(r.z<0){s=false;continue;}const X=cx+r.x*R,Y=cy-r.y*R;s?gx.lineTo(X,Y):gx.moveTo(X,Y);s=true;}gx.stroke();}
+  // continentes (pontos)
+  for(const p of land){const r=rot(p,ca,sa);if(r.z<-0.02)continue;const d=(r.z+1)/2,X=cx+r.x*R,Y=cy-r.y*R;
+    gx.globalAlpha=0.25+d*0.75;gx.fillStyle=p.c;gx.beginPath();gx.arc(X,Y,1.6*(0.5+d),0,7);gx.fill();}
   gx.globalAlpha=1;
+  // eventos pulsando
+  for(const e of EVENTS){const r=rot(e,ca,sa);if(r.z<0)continue;const X=cx+r.x*R,Y=cy-r.y*R,pulse=(Math.sin(t)+1)/2;
+    gx.fillStyle=cssv('--accent');gx.globalAlpha=.9;gx.beginPath();gx.arc(X,Y,3.2,0,7);gx.fill();
+    gx.globalAlpha=.3*(1-pulse*.6);gx.beginPath();gx.arc(X,Y,4+pulse*14,0,7);gx.fill();gx.globalAlpha=1;}
+}
 
-  // charts: progresso ligado ao quanto a seção entrou na tela
-  charts.forEach(c=>{const r=c.el.getBoundingClientRect();const prog=clamp((vh*0.92-r.top)/(vh*0.6),0,1);drawChart(c,prog);});
+/* starfield */
+const sky=document.getElementById('stars'),sxc=sky.getContext('2d');let stars=[];
+function initStars(){sky.width=innerWidth;sky.height=innerHeight;stars=[...Array(120)].map(()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.3+.2,s:Math.random()*.35+.05}));}
+initStars();addEventListener('resize',initStars);
 
+/* main loop */
+function loop(){
+  const sy=scrollY,vh=innerHeight,dh=document.body.scrollHeight-vh;
+  document.getElementById('prog').style.width=clamp(sy/dh,0,1)*100+'%';
+  const ht=document.getElementById('heroText'),hp=clamp(sy/vh,0,1);
+  ht.style.transform=`translateY(${sy*0.22}px)`;ht.style.opacity=String(1-hp*0.85);
+  gl.style.transform=`translateY(${sy*0.07}px)`;
+  if(root.getAttribute('data-theme')==='dark'){sxc.clearRect(0,0,sky.width,sky.height);sxc.fillStyle=cssv('--muted');stars.forEach(st=>{st.y+=st.s;if(st.y>sky.height)st.y=0;sxc.globalAlpha=.5*st.r;sxc.beginPath();sxc.arc(st.x,(st.y+sy*0.04)%sky.height,st.r,0,7);sxc.fill();});sxc.globalAlpha=1;}
+  drawGlobe();
+  chartEls.forEach(c=>{const r=c.el.getBoundingClientRect();const prog=clamp((vh*0.9-r.top)/(vh*0.55),0,1);const W=c.el.querySelector('canvas').clientWidth;c.price.textContent=fmt(c.key,drawLine(c.ctx,W,140,SERIES[c.key],prog,c.up));});
   requestAnimationFrame(loop);
 }
 loop();
