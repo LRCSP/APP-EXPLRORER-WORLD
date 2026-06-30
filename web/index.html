@@ -3,118 +3,121 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Monitor de Inteligência Geopolítica — protótipo</title>
+<title>Monitor de Inteligência Geopolítica — protótipo v2</title>
 <style>
   :root{
-    --bg:#05070d; --bg2:#0a0f1c; --panel:#0e1525; --line:#1b2740;
-    --txt:#e8edf7; --muted:#8898b5; --accent:#36e0c8; --accent2:#3b82f6;
-    --red:#ff5d63; --amber:#ffb443; --green:#37d39b;
+    --bg:#04060c; --bg2:#0a1020; --panel:#0d1424; --line:#1b2742;
+    --txt:#eaf0fb; --muted:#8597b8; --accent:#36e0c8; --accent2:#4f8bff;
+    --red:#ff5d63; --amber:#ffb443; --green:#37d39b; --grid:rgba(120,150,200,.10);
   }
   [data-theme="light"]{
-    --bg:#f3f5fa; --bg2:#ffffff; --panel:#ffffff; --line:#e3e8f2;
-    --txt:#0c1426; --muted:#5b6b86; --accent:#0d9488; --accent2:#2563eb;
+    --bg:#eef2f9; --bg2:#ffffff; --panel:#ffffff; --line:#dde4f0;
+    --txt:#0b1426; --muted:#5a6b86; --accent:#0ea5a0; --accent2:#2563eb;
+    --grid:rgba(40,70,120,.10);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;overflow-x:hidden}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;overflow-x:hidden;transition:background .5s,color .5s}
   .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
 
-  /* Header */
+  /* moving starfield bg */
+  #stars{position:fixed;inset:0;z-index:-2;opacity:.5}
+  .aura{position:fixed;z-index:-1;width:60vw;height:60vw;border-radius:50%;filter:blur(120px);opacity:.16;
+    background:radial-gradient(circle,var(--accent),transparent 60%);top:-10vw;right:-10vw;transition:transform .2s linear}
+
+  /* progress bar */
+  #prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 12px var(--accent)}
+
   header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-    padding:16px 28px;backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
+    padding:16px 28px;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px}
   .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
   .brand small{color:var(--muted);font-weight:500;letter-spacing:0}
-  .toggle{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);
-    padding:8px 14px;border-radius:999px;font-size:13px;display:flex;align-items:center;gap:8px}
+  .toggle{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);padding:8px 14px;border-radius:999px;font-size:13px}
 
-  /* Hero */
-  .hero{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:20px;position:relative}
+  /* hero */
+  .hero{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;position:relative}
   .kicker{color:var(--accent);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px}
-  .hero h1{font-size:clamp(34px,5vw,68px);line-height:1.02;font-weight:800;letter-spacing:-1px}
+  .hero h1{font-size:clamp(36px,5.4vw,72px);line-height:1.0;font-weight:800;letter-spacing:-1.5px}
   .hero h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .hero p{color:var(--muted);font-size:18px;margin-top:22px;max-width:520px}
   .cta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
-  .btn{padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;border:1px solid var(--line);text-decoration:none}
+  .btn{padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;border:1px solid var(--line);text-decoration:none;color:var(--txt)}
   .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121a;border:none}
-  .btn.ghost{background:transparent;color:var(--txt)}
-  #globe{width:100%;max-width:480px;aspect-ratio:1;margin-left:auto;display:block;filter:drop-shadow(0 0 40px color-mix(in srgb,var(--accent) 30%,transparent))}
-  .scrollhint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;animation:bob 1.8s infinite}
-  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+  #globe{width:100%;max-width:520px;aspect-ratio:1;margin-left:auto;display:block;will-change:transform}
+  .scrollhint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;animation:bob 1.8s infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
 
-  /* Sections */
-  section.block{padding:120px 0;border-top:1px solid var(--line)}
+  section.block{padding:130px 0;border-top:1px solid var(--line);position:relative}
   .eyebrow{color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
-  .block h2{font-size:clamp(26px,3.4vw,44px);font-weight:800;letter-spacing:-.5px;max-width:760px}
-  .block .lead{color:var(--muted);font-size:17px;margin-top:14px;max-width:620px}
+  .block h2{font-size:clamp(28px,3.6vw,48px);font-weight:800;letter-spacing:-.6px;max-width:780px}
+  .block .lead{color:var(--muted);font-size:17px;margin-top:14px;max-width:640px}
 
-  /* reveal */
-  .reveal{opacity:0;transform:translateY(34px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
 
-  /* Market bars */
-  .market{margin-top:46px;display:grid;gap:18px}
-  .bar{display:grid;grid-template-columns:160px 1fr 150px;align-items:center;gap:18px}
-  .bar .name{color:var(--txt);font-weight:600}
-  .track{height:14px;background:var(--panel);border:1px solid var(--line);border-radius:999px;overflow:hidden}
-  .fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 1.3s cubic-bezier(.2,.7,.2,1)}
-  .bar .val{text-align:right;font-variant-numeric:tabular-nums}
-  .bar .val .pct{font-size:13px;margin-left:6px}
+  /* charts */
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:46px}
+  .chart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 14px;position:relative;overflow:hidden}
+  .chart .top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px}
+  .chart .label{font-size:13px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+  .chart .price{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .chart .chg{font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+  .chart canvas{width:100%;height:150px;display:block}
+  .chart .foot{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:6px}
   .up{color:var(--green)} .down{color:var(--red)}
 
-  /* Sector cards (sticky color blocks) */
-  .sector{position:relative;border-radius:22px;padding:46px;margin-top:34px;border:1px solid var(--line);overflow:hidden}
+  /* sectors */
+  .sector{position:relative;border-radius:22px;padding:46px;margin-top:34px;border:1px solid var(--line);overflow:hidden;background:var(--bg2)}
   .sector .tag{display:inline-block;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
   .sector h3{font-size:26px;margin:16px 0 6px;font-weight:800}
   .sector .meta{color:var(--muted);font-size:14px;margin-bottom:22px}
   .impact{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .impact .cell{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .impact .cell{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
   .impact .cell b{display:block;color:var(--accent);font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-  .impact .cell span{color:var(--txt);font-size:14.5px}
-  .glow{position:absolute;width:380px;height:380px;border-radius:50%;filter:blur(90px);opacity:.18;right:-80px;top:-120px}
-
-  /* severity chart */
-  .sev{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:end;height:220px;margin-top:40px}
-  .sev .col{background:var(--panel);border:1px solid var(--line);border-radius:12px 12px 0 0;height:8%;transition:height 1.1s cubic-bezier(.2,.7,.2,1);display:flex;align-items:flex-start;justify-content:center;position:relative}
-  .sev .col span{position:absolute;top:-26px;color:var(--muted);font-size:13px}
-  .sev .col b{position:absolute;bottom:-26px;color:var(--txt);font-size:12px;font-weight:600}
+  .impact .cell span{font-size:14.5px}
+  .glow{position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(100px);opacity:.16;right:-90px;top:-130px}
 
   footer{padding:60px 0;border-top:1px solid var(--line);color:var(--muted);text-align:center;font-size:14px}
-  .num{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
+<canvas id="stars"></canvas>
+<div class="aura" id="aura"></div>
+<div id="prog"></div>
+
 <header>
-  <div class="brand"><span class="dot"></span>GEO<span style="opacity:.6">·</span>INTEL <small>protótipo</small></div>
-  <div class="toggle" id="themeBtn">🌙 <span>Escuro</span></div>
+  <div class="brand"><span class="dot"></span>GEO<span style="opacity:.55">·</span>INTEL <small>protótipo&nbsp;v2</small></div>
+  <div class="toggle" id="themeBtn">🌙 Escuro</div>
 </header>
 
 <div class="wrap">
-  <!-- HERO -->
   <div class="hero">
-    <div>
-      <div class="kicker reveal in">Inteligência geopolítica operacional</div>
-      <h1 class="reveal in">O mundo em movimento, <span>traduzido em ação</span> para a sua empresa.</h1>
-      <p class="reveal in">Energia, petróleo, cyber, fertilizantes, alimentos e mercado — monitorados, classificados por severidade e transformados em impacto de custo, cadeia e decisão. Todo dia.</p>
-      <div class="cta reveal in">
+    <div id="heroText">
+      <div class="kicker">Inteligência geopolítica operacional</div>
+      <h1>O mundo em movimento, <span>traduzido em ação</span> para a sua empresa.</h1>
+      <p>Energia, petróleo, cyber, alimentos e mercado — monitorados, classificados por severidade e transformados em impacto de custo, cadeia e decisão. Todo dia.</p>
+      <div class="cta">
         <a class="btn primary">Ver briefing de hoje</a>
-        <a class="btn ghost">Entrar</a>
+        <a class="btn">Entrar</a>
       </div>
     </div>
-    <canvas id="globe" width="900" height="900" aria-label="Globo terrestre"></canvas>
+    <canvas id="globe" width="1040" height="1040"></canvas>
   </div>
 </div>
-
 <div class="scrollhint">↓ role para explorar</div>
 
-<!-- MERCADO -->
-<section class="block">
+<!-- MERCADO: linhas XY -->
+<section class="block" id="secMarket">
   <div class="wrap">
-    <div class="eyebrow reveal">Mercado do dia · ao vivo</div>
-    <h2 class="reveal">Os números que mexem no seu custo.</h2>
-    <p class="lead reveal">As cotações entram automaticamente no topo do briefing. As barras se preenchem conforme você rola.</p>
-    <div class="market" id="market">
-      <!-- bars injetadas via JS -->
+    <div class="eyebrow reveal">Mercado · últimos 30 dias</div>
+    <h2 class="reveal">A evolução das moedas — picos e quedas.</h2>
+    <p class="lead reveal">As linhas se desenham conforme você rola. Dados reais do dólar e do euro.</p>
+    <div class="charts">
+      <div class="chart reveal" data-key="USD" data-name="Dólar · USD/BRL"><div class="top"><div><div class="label">Dólar · USD/BRL</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
+      <div class="chart reveal" data-key="EUR" data-name="Euro · EUR/BRL"><div class="top"><div><div class="label">Euro · EUR/BRL</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
+      <div class="chart reveal" data-key="IBOV" data-name="Ibovespa"><div class="top"><div><div class="label">Ibovespa</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
+      <div class="chart reveal" data-key="BTC" data-name="Bitcoin · USD"><div class="top"><div><div class="label">Bitcoin · USD</div><div class="price">—</div></div><div class="chg">—</div></div><canvas></canvas><div class="foot"><span class="lo"></span><span class="hi"></span></div></div>
     </div>
   </div>
 </section>
@@ -124,7 +127,6 @@
   <div class="wrap">
     <div class="eyebrow reveal">Sinais por setor</div>
     <h2 class="reveal">Cada evento vira impacto operacional.</h2>
-
     <div class="sector reveal">
       <div class="glow" style="background:var(--red)"></div>
       <span class="tag">Cyber · EUA · Severidade 5/5</span>
@@ -137,7 +139,6 @@
         <div class="cell"><b>✅ Ação</b><span>Aplicar o patch da CVE imediatamente em todas as instâncias.</span></div>
       </div>
     </div>
-
     <div class="sector reveal">
       <div class="glow" style="background:var(--amber)"></div>
       <span class="tag">Energia · Global · Severidade 4/5</span>
@@ -147,117 +148,122 @@
         <div class="cell"><b>💰 Custo</b><span>Pode desestabilizar preços e elevar o custo de energia da empresa.</span></div>
         <div class="cell"><b>🔗 Cadeia</b><span>Volatilidade encarece frete e prazos de importação.</span></div>
         <div class="cell"><b>🛡️ Cyber</b><span>Sem exposição direta relevante.</span></div>
-        <div class="cell"><b>✅ Ação</b><span>Reavaliar projeções de custo e diversificar fornecedores de energia.</span></div>
+        <div class="cell"><b>✅ Ação</b><span>Reavaliar projeções de custo e diversificar fornecedores.</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- SEVERIDADE -->
-<section class="block">
-  <div class="wrap">
-    <div class="eyebrow reveal">Panorama do dia</div>
-    <h2 class="reveal">Distribuição dos eventos por severidade.</h2>
-    <p class="lead reveal">As barras crescem quando entram na tela — igual aos gráficos que você curtiu.</p>
-    <div class="sev reveal" id="sev">
-      <div class="col" data-h="22"><span class="num">3</span><b>1 · baixo</b></div>
-      <div class="col" data-h="40"><span class="num">6</span><b>2</b></div>
-      <div class="col" data-h="62"><span class="num">9</span><b>3 · médio</b></div>
-      <div class="col" data-h="85"><span class="num">12</span><b>4</b></div>
-      <div class="col" data-h="100"><span class="num">14</span><b>5 · crítico</b></div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">Protótipo visual · GEO·INTEL — tema escuro/claro, globo 3D, scroll animado. Dados reais entram nas próximas etapas.</div>
-</footer>
+<footer><div class="wrap">Protótipo v2 · GEO·INTEL — scroll cinematográfico, gráficos XY com dados reais, tema escuro/claro. Login e briefing real nas próximas etapas.</div></footer>
 
 <script>
-/* ---------- Tema claro/escuro ---------- */
+const SERIES = {"USD": [5.0392, 5.0386, 5.0207, 5.0774, 5.0607, 5.177, 5.2031, 5.1901, 5.1921, 5.1138, 5.0609, 5.0751, 5.1019, 5.1221, 5.1815, 5.1514, 5.1565, 5.1977, 5.2075, 5.1941, 5.1707, 5.1682], "EUR": [5.8651, 5.8582, 5.8309, 5.8893, 5.872, 5.963, 5.9916, 5.9809, 5.9844, 5.9137, 5.8685, 5.8789, 5.9172, 5.8893, 5.9312, 5.8962, 5.8893, 5.9102, 5.9067, 5.8962, 5.8824, 5.9002], "IBOV": [172198.0, 174198.0, 170331.0, 169019.0, 168669.0, 169813.0, 168619.0, 171497.0, 171133.0, 170415.0, 169649.0, 168454.0, 168278.0, 168576.0, 170370.0, 171259.0, 170507.0, 171990.0, 173295.0, 173205.0, 172183.3438], "BTC": [73754.8359, 73579.6875, 71319.7734, 66703.6562, 64014.3672, 63801.5742, 60922.668, 60867.4141, 63239.5195, 63090.5898, 61643.7812, 61449.2891, 63561.0547, 63543.1992, 64421.3242, 65710.3984, 66289.5, 65600.6406, 64418.4453, 62896.4727, 63540.8359, 64239.6758, 63237.5391, 63952.1055, 62668.0195, 60995.1328, 59721.6758, 60016.4297, 59940.0977, 59532.3398, 60138.3789, 58649.2812]};
 const root=document.documentElement, tb=document.getElementById('themeBtn');
-tb.onclick=()=>{
-  const dark=root.getAttribute('data-theme')==='dark';
-  root.setAttribute('data-theme',dark?'light':'dark');
-  tb.innerHTML = dark ? '☀️ <span>Claro</span>' : '🌙 <span>Escuro</span>';
-};
+const cssv=n=>getComputedStyle(root).getPropertyValue(n).trim();
+tb.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';root.setAttribute('data-theme',d?'light':'dark');tb.innerHTML=d?'☀️ Claro':'🌙 Escuro';};
 
-/* ---------- Mercado (dados reais capturados) ---------- */
-const mercado=[
-  {nome:'Dólar (USD/BRL)', val:'5,17',  pct:-0.02, w:35},
-  {nome:'Euro (EUR/BRL)',  val:'5,89',  pct:-0.17, w:42},
-  {nome:'Ibovespa',        val:'172.184',pct:-0.59, w:78},
-  {nome:'Petróleo Brent',  val:'73,44', pct:-0.64, w:60},
-  {nome:'Bitcoin (USD)',   val:'58.364',pct:-2.97, w:88},
-];
-const mEl=document.getElementById('market');
-mercado.forEach(m=>{
-  const up=m.pct>=0;
-  const row=document.createElement('div');
-  row.className='bar reveal';
-  row.innerHTML=`<div class="name">${m.nome}</div>
-    <div class="track"><div class="fill" data-w="${m.w}"></div></div>
-    <div class="val num">${m.val} <span class="pct ${up?'up':'down'}">${up?'▲':'▼'} ${Math.abs(m.pct).toFixed(2)}%</span></div>`;
-  mEl.appendChild(row);
-});
+/* ---------- helpers ---------- */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+function fmt(key,v){
+  if(key==='USD'||key==='EUR') return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(key==='IBOV') return Math.round(v).toLocaleString('pt-BR');
+  return '$'+Math.round(v).toLocaleString('pt-BR');
+}
 
-/* ---------- Reveal + animações no scroll ---------- */
-const io=new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{
-    if(!e.isIntersecting) return;
-    e.target.classList.add('in');
-    e.target.querySelectorAll?.('.fill').forEach(f=>f.style.width=f.dataset.w+'%');
-    if(e.target.id==='sev') e.target.querySelectorAll('.col').forEach(c=>c.style.height=c.dataset.h+'%');
-    // contadores
-    e.target.querySelectorAll?.('.num').forEach(n=>{
-      const target=parseFloat((n.textContent||'').replace(/\./g,'').replace(',','.'));
-      if(isNaN(target)) return;
-      let cur=0, step=target/30;
-      const fmt=v=> n.textContent.includes('.')||target>999 ? Math.round(v).toLocaleString('pt-BR') : Math.round(v);
-      const t=setInterval(()=>{cur+=step; if(cur>=target){cur=target;clearInterval(t)} n.textContent=fmt(cur)},22);
-    });
-    io.unobserve(e.target);
-  });
-},{threshold:.25});
+/* ---------- reveal ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.18});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-document.querySelectorAll('.fill').forEach(f=>io.observe(f.closest('.bar')));
 
-/* ---------- Globo terrestre (point cloud, canvas puro) ---------- */
-const cv=document.getElementById('globe'), ctx=cv.getContext('2d');
-const N=900, pts=[];
-for(let i=0;i<N;i++){
-  const y=1-(i/(N-1))*2, r=Math.sqrt(1-y*y), th=Math.PI*(3-Math.sqrt(5))*i;
-  pts.push({x:Math.cos(th)*r, y:y, z:Math.sin(th)*r, hot:Math.random()<0.05});
+/* ---------- charts ---------- */
+const charts=[...document.querySelectorAll('.chart')].map(el=>{
+  const key=el.dataset.key, data=SERIES[key]||[];
+  const cv=el.querySelector('canvas'); const ctx=cv.getContext('2d');
+  const lo=Math.min(...data), hi=Math.max(...data);
+  el.querySelector('.foot .lo').textContent='mín '+fmt(key,lo);
+  el.querySelector('.foot .hi').textContent='máx '+fmt(key,hi);
+  const first=data[0], last=data[data.length-1], chg=(last-first)/first*100;
+  const chgEl=el.querySelector('.chg'); const up=chg>=0;
+  chgEl.textContent=(up?'▲ +':'▼ ')+chg.toFixed(2)+'%'; chgEl.classList.add(up?'up':'down');
+  return {el,key,data,ctx,cv,lo,hi,priceEl:el.querySelector('.price'),up};
+});
+function drawChart(c,prog){
+  const {ctx,cv,data,lo,hi,up}=c;
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  if(cv.width!==W*dpr){cv.width=W*dpr;cv.height=H*dpr;}
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const pad=10, span=(hi-lo)||1;
+  const X=i=>pad+(W-2*pad)*(i/(data.length-1));
+  const Y=v=>H-pad-(H-2*pad)*((v-lo)/span);
+  // grid
+  ctx.strokeStyle=cssv('--grid');ctx.lineWidth=1;
+  for(let g=0;g<=3;g++){const y=pad+(H-2*pad)*g/3;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+  // how many points to draw
+  const n=clamp(prog,0,1)*(data.length-1); const full=Math.floor(n), frac=n-full;
+  const col=up?cssv('--green'):cssv('--accent');
+  // area
+  ctx.beginPath();ctx.moveTo(X(0),Y(data[0]));
+  for(let i=1;i<=full;i++)ctx.lineTo(X(i),Y(data[i]));
+  let ex=X(full),ey=Y(data[full]);
+  if(full<data.length-1){ex=lerp(X(full),X(full+1),frac);ey=lerp(Y(data[full]),Y(data[full+1]),frac);ctx.lineTo(ex,ey);}
+  const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,col+'55');grad.addColorStop(1,col+'00');
+  ctx.lineTo(ex,H-pad);ctx.lineTo(X(0),H-pad);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  // line
+  ctx.beginPath();ctx.moveTo(X(0),Y(data[0]));
+  for(let i=1;i<=full;i++)ctx.lineTo(X(i),Y(data[i]));
+  if(full<data.length-1)ctx.lineTo(ex,ey);
+  ctx.strokeStyle=col;ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.shadowColor=col;ctx.shadowBlur=12;ctx.stroke();ctx.shadowBlur=0;
+  // moving dot
+  ctx.fillStyle=col;ctx.beginPath();ctx.arc(ex,ey,4.5,0,7);ctx.fill();
+  ctx.globalAlpha=.3;ctx.beginPath();ctx.arc(ex,ey,10,0,7);ctx.fill();ctx.globalAlpha=1;
+  // price number follows the drawing
+  const curVal=full<data.length-1?lerp(data[full],data[full+1],frac):data[data.length-1];
+  c.priceEl.textContent=fmt(c.key,curVal);
 }
-function accent(){return getComputedStyle(root).getPropertyValue('--accent').trim()}
-function accent2(){return getComputedStyle(root).getPropertyValue('--accent2').trim()}
+
+/* ---------- starfield ---------- */
+const sky=document.getElementById('stars'),sx=sky.getContext('2d');let stars=[];
+function initStars(){sky.width=innerWidth;sky.height=innerHeight;stars=[...Array(140)].map(()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.4+.2,s:Math.random()*.4+.05}));}
+initStars();addEventListener('resize',()=>{initStars();});
+
+/* ---------- globe ---------- */
+const gl=document.getElementById('globe'),gx=gl.getContext('2d');
+const NP=1000,pts=[];for(let i=0;i<NP;i++){const y=1-(i/(NP-1))*2,r=Math.sqrt(1-y*y),th=Math.PI*(3-Math.sqrt(5))*i;pts.push({x:Math.cos(th)*r,y,z:Math.sin(th)*r,hot:Math.random()<0.05});}
 let ang=0;
-function draw(){
-  const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=W*0.42;
-  ctx.clearRect(0,0,W,H);
-  // halo
-  const g=ctx.createRadialGradient(cx,cy,R*0.2,cx,cy,R*1.25);
-  g.addColorStop(0,'rgba(54,224,200,0.10)');g.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,R*1.25,0,7);ctx.fill();
-  ang+=0.0026;
-  const ca=Math.cos(ang),sa=Math.sin(ang);
-  const A=accent(),A2=accent2();
-  pts.forEach(p=>{
-    const x=p.x*ca - p.z*sa, z=p.x*sa + p.z*ca, y=p.y;
-    const depth=(z+1)/2;                 // 0 atrás, 1 frente
-    const sx=cx+x*R, sy=cy+y*R;
-    const size=(p.hot?2.6:1.5)*(0.45+depth);
-    ctx.globalAlpha=0.12+depth*0.85;
-    ctx.fillStyle=p.hot?A:(depth>0.5?A2:'#5f7bb0');
-    ctx.beginPath();ctx.arc(sx,sy,size,0,7);ctx.fill();
-    if(p.hot && depth>0.6){            // brilho dos "eventos"
-      ctx.globalAlpha=0.25;ctx.beginPath();ctx.arc(sx,sy,size*3,0,7);ctx.fill();
-    }
-  });
-  ctx.globalAlpha=1;
-  requestAnimationFrame(draw);
+
+/* ---------- main loop (movimento ligado ao scroll) ---------- */
+function loop(){
+  const sy=window.scrollY, vh=innerHeight, dh=document.body.scrollHeight-vh;
+  document.getElementById('prog').style.width=clamp(sy/dh,0,1)*100+'%';
+  // aura segue o scroll
+  document.getElementById('aura').style.transform=`translateY(${sy*0.25}px) scale(${1+sy/4000})`;
+  // hero parallax
+  const ht=document.getElementById('heroText'); const hp=clamp(sy/vh,0,1);
+  ht.style.transform=`translateY(${sy*0.25}px)`;ht.style.opacity=String(1-hp*0.9);
+
+  // starfield drift
+  sx.clearRect(0,0,sky.width,sky.height);
+  sx.fillStyle=cssv('--muted');
+  stars.forEach(st=>{st.y+=st.s;if(st.y>sky.height)st.y=0;sx.globalAlpha=.5*st.r;sx.beginPath();sx.arc(st.x,(st.y+sy*0.04)%sky.height,st.r,0,7);sx.fill();});
+  sx.globalAlpha=1;
+
+  // globo: gira sempre, escala/translada com scroll
+  const W=gl.width,H=gl.height,cx=W/2,cy=H/2,R=W*0.40*(1+hp*0.15);
+  gx.clearRect(0,0,W,H);ang+=0.0024+hp*0.004;
+  const ca=Math.cos(ang),sa=Math.sin(ang),A=cssv('--accent'),A2=cssv('--accent2');
+  gl.style.transform=`translateY(${sy*0.08}px) rotateZ(${sy*0.01}deg)`;
+  pts.forEach(p=>{const x=p.x*ca-p.z*sa,z=p.x*sa+p.z*ca,y=p.y;const d=(z+1)/2;const Sx=cx+x*R,Sy=cy+y*R;const sz=(p.hot?2.8:1.5)*(0.45+d);
+    gx.globalAlpha=0.12+d*0.85;gx.fillStyle=p.hot?A:(d>0.5?A2:(root.getAttribute('data-theme')==='light'?'#7a90c0':'#46608f'));
+    gx.beginPath();gx.arc(Sx,Sy,sz,0,7);gx.fill();
+    if(p.hot&&d>0.6){gx.globalAlpha=0.22;gx.beginPath();gx.arc(Sx,Sy,sz*3.2,0,7);gx.fill();}});
+  gx.globalAlpha=1;
+
+  // charts: progresso ligado ao quanto a seção entrou na tela
+  charts.forEach(c=>{const r=c.el.getBoundingClientRect();const prog=clamp((vh*0.92-r.top)/(vh*0.6),0,1);drawChart(c,prog);});
+
+  requestAnimationFrame(loop);
 }
-draw();
+loop();
 </script>
 </body>
 </html>
