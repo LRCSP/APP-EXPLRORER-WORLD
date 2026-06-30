@@ -85,6 +85,8 @@ class Settings:
     schedule_cron: str = "0 7 * * mon-fri"
     timezone: str = "America/Sao_Paulo"
     top_n_events: int = 10
+    # Quantos eventos (pré-filtrados de graça) vão para a IA classificar.
+    ai_max_events: int = 50
     log_level: str = "INFO"
     idiomas: list[str] = field(default_factory=lambda: ["pt", "en"])
 
@@ -108,6 +110,7 @@ class Settings:
             schedule_cron=os.getenv("SCHEDULE_CRON", "0 7 * * mon-fri"),
             timezone=os.getenv("TIMEZONE", "America/Sao_Paulo"),
             top_n_events=int(os.getenv("TOP_N_EVENTS", "10")),
+            ai_max_events=int(os.getenv("AI_MAX_EVENTS", "50")),
             log_level=os.getenv("LOG_LEVEL", "INFO"),
             idiomas=idiomas or ["pt"],
         )

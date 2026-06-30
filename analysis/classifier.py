@@ -130,14 +130,20 @@ def run(eventos: list[Evento], settings: Settings | None = None, batch_size: int
     from brain import make_brain
     brain = make_brain(settings, fast=True)
 
+    # Heurística grátis para TODOS: serve de baseline e de pré-filtro.
+    for ev in eventos:
+        ev.extra.update(_heuristica(ev))
+
     if brain is None:
         log.info("Classificação em modo DEMO (nenhum provedor de IA configurado).")
-        for ev in eventos:
-            ev.extra.update(_heuristica(ev))
     else:
-        log.info("Classificação via '%s'.", brain.name)
-        for inicio in range(0, len(eventos), batch_size):
-            lote = eventos[inicio:inicio + batch_size]
+        # Só os top-N por relevância heurística vão para a IA (controla custo).
+        candidatos = sorted(
+            eventos, key=lambda e: e.extra.get("relevancia", 0), reverse=True
+        )[:settings.ai_max_events]
+        log.info("Classificação via '%s' nos top %d eventos.", brain.name, len(candidatos))
+        for inicio in range(0, len(candidatos), batch_size):
+            lote = candidatos[inicio:inicio + batch_size]
             try:
                 dados = _classifica_lote_api(brain, lote)
                 por_id = {d.get("id"): d for d in dados if isinstance(d, dict)}
