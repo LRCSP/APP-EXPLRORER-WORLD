@@ -2,9 +2,10 @@
 # Fontes de ingestão por setor.
 # Cada fonte: name, url (RSS/Atom), sector, type (rss), enabled.
 #
-# IMPORTANTE: estes são feeds CANDIDATOS. A Fase 1 valida cada um e reporta
-# quais respondem e quais falham. Nada aqui é assumido como funcional ainda.
-# Para desativar uma fonte sem apagá-la, use `enabled: false`.
+# Todos os feeds abaixo foram VALIDADOS ao vivo na Fase 1 (respondiam e
+# traziam itens na última checagem). Para desativar uma fonte sem apagá-la,
+# use `enabled: false`. Rode a validação a qualquer momento com:
+#     python -m tools.validate_sources
 #
 # Setores válidos: energia, petroleo, cyber, fertilizantes, alimentos,
 #                  insumos, exportacoes
@@ -28,13 +29,13 @@ sources:
     enabled: true
 
   # ----------------------------- PETRÓLEO -------------------------------------
-  - name: "OilPrice — Crude Oil Prices"
-    url: "https://oilprice.com/rss/crude-oil-news"
+  - name: "Rigzone — News"
+    url: "https://www.rigzone.com/news/rss/rigzone_latest.aspx"
     sector: petroleo
     enabled: true
 
-  - name: "Rigzone — News"
-    url: "https://www.rigzone.com/news/rss/rigzone_latest.aspx"
+  - name: "Google News — Oil / OPEC / Crude"
+    url: "https://news.google.com/rss/search?q=oil+prices+OR+crude+oil+OR+OPEC&hl=en-US&gl=US&ceid=US:en"
     sector: petroleo
     enabled: true
 
@@ -60,19 +61,35 @@ sources:
     enabled: true
 
   # --------------------------- FERTILIZANTES ----------------------------------
-  - name: "Reuters — Markets (proxy fertilizantes/commodities)"
-    url: "https://feeds.reuters.com/reuters/businessNews"
+  - name: "Google News — Fertilizers / Commodities"
+    url: "https://news.google.com/rss/search?q=fertilizer+OR+potash+OR+urea+OR+commodities&hl=en-US&gl=US&ceid=US:en"
     sector: fertilizantes
     enabled: true
 
+  # ------------------------------ INSUMOS -------------------------------------
+  - name: "Mining.com — News"
+    url: "https://www.mining.com/feed/"
+    sector: insumos
+    enabled: true
+
   # ----------------------------- ALIMENTOS ------------------------------------
-  - name: "FAO — News (Food & Agriculture)"
-    url: "https://www.fao.org/feeds/news/en/rss.xml"
+  - name: "World-Grain — Articles"
+    url: "https://www.world-grain.com/rss/articles"
+    sector: alimentos
+    enabled: true
+
+  - name: "Google News — Food Security / Grain Exports"
+    url: "https://news.google.com/rss/search?q=food+security+OR+grain+exports+OR+harvest&hl=en-US&gl=US&ceid=US:en"
     sector: alimentos
     enabled: true
 
   # ---------------------------- EXPORTAÇÕES -----------------------------------
   - name: "WTO — News"
     url: "https://www.wto.org/library/rss/latest_news_e.xml"
+    sector: exportacoes
+    enabled: true
+
+  - name: "Google News — Export Controls / Sanctions / Trade"
+    url: "https://news.google.com/rss/search?q=export+controls+OR+sanctions+OR+trade+restrictions&hl=en-US&gl=US&ceid=US:en"
     sector: exportacoes
     enabled: true
