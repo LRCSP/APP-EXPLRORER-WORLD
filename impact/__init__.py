@@ -5,6 +5,6 @@ Para os Top N eventos, gera o bloco de impacto para empresários:
 consolida o objeto Briefing.
 """
 from impact.models import Briefing, EventoBriefing
-from impact.engine import montar_briefing
+from impact.engine import montar_briefing, montar_briefings
 
-__all__ = ["Briefing", "EventoBriefing", "montar_briefing"]
+__all__ = ["Briefing", "EventoBriefing", "montar_briefing", "montar_briefings"]

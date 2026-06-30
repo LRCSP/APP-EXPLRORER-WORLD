@@ -75,6 +75,8 @@ def _heuristica(ev: Evento) -> dict:
         "geografia": geografia,
         "severidade": int(severidade),
         "relevancia": int(relevancia),
+        # Sem chave não há tradução real: mantém o original nos dois idiomas.
+        "titulo_i18n": {"pt": ev.titulo, "en": ev.titulo},
         "_modo": "demo",
     }
 
@@ -105,7 +107,9 @@ def _classifica_lote_api(client, model: str, lote: list[Evento]) -> list[dict]:
         f'  "setor": um de {SETORES},\n'
         '  "geografia": país/região principal (string curta) ou "Global",\n'
         '  "severidade": inteiro 1-5 (impacto potencial),\n'
-        '  "relevancia": inteiro 1-10 (relevância para um empresário).\n'
+        '  "relevancia": inteiro 1-10 (relevância para um empresário),\n'
+        '  "titulo_pt": o título traduzido para português,\n'
+        '  "titulo_en": o título em inglês.\n'
         "Responda APENAS com um array JSON desses objetos, na mesma ordem.\n\n"
         f"ITENS:\n{json.dumps(itens, ensure_ascii=False)}"
     )
@@ -156,6 +160,10 @@ def run(eventos: list[Evento], settings: Settings | None = None, batch_size: int
                         "geografia": d.get("geografia", "Global"),
                         "severidade": int(d.get("severidade", 1) or 1),
                         "relevancia": int(d.get("relevancia", 1) or 1),
+                        "titulo_i18n": {
+                            "pt": d.get("titulo_pt") or ev.titulo,
+                            "en": d.get("titulo_en") or ev.titulo,
+                        },
                         "_modo": "api",
                     })
             except Exception as e:  # erro de parse/rede -> heurística no lote

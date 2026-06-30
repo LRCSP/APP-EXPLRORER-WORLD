@@ -76,9 +76,11 @@ class Settings:
     timezone: str = "America/Sao_Paulo"
     top_n_events: int = 10
     log_level: str = "INFO"
+    idiomas: list[str] = field(default_factory=lambda: ["pt", "en"])
 
     @classmethod
     def from_env(cls) -> "Settings":
+        idiomas = [i.strip().lower() for i in os.getenv("IDIOMAS", "pt,en").split(",") if i.strip()]
         return cls(
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
             anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-opus-4-8"),
@@ -91,4 +93,5 @@ class Settings:
             timezone=os.getenv("TIMEZONE", "America/Sao_Paulo"),
             top_n_events=int(os.getenv("TOP_N_EVENTS", "10")),
             log_level=os.getenv("LOG_LEVEL", "INFO"),
+            idiomas=idiomas or ["pt"],
         )

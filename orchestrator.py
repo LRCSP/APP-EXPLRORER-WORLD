@@ -21,7 +21,7 @@ from pathlib import Path
 from config.loader import Settings
 import ingest
 import analysis
-from impact.engine import montar_briefing
+from impact.engine import montar_briefings
 from delivery import telegram, docx_writer, sheets
 
 log = logging.getLogger("orchestrator")
@@ -36,8 +36,8 @@ def _setup_logging(level: str) -> None:
     )
 
 
-def construir_briefing(settings: Settings):
-    """Etapas 1-3: ingestão, análise e impacto. Retorna (briefing, resultados_fontes)."""
+def construir_briefings(settings: Settings):
+    """Etapas 1-3: ingestão, análise e impacto. Retorna ({idioma: Briefing}, resultados)."""
     log.info("== Etapa 1/3: ingestão ==")
     eventos, resultados = ingest.run()
     ok = sum(1 for r in resultados if r.ok)
@@ -47,20 +47,22 @@ def construir_briefing(settings: Settings):
     eventos_rankeados = analysis.run(eventos, settings)
 
     log.info("== Etapa 3/3: impacto operacional (Top %d) ==", settings.top_n_events)
-    briefing = montar_briefing(
+    briefings = montar_briefings(
         eventos_rankeados, settings, top_n=settings.top_n_events, total_ingerido=len(eventos)
     )
-    log.info("Briefing pronto: %d eventos (modo %s)", len(briefing.eventos), briefing.modo)
-    return briefing, resultados
+    modo = next(iter(briefings.values())).modo if briefings else "demo"
+    log.info("Briefings prontos: idiomas=%s (modo %s)", list(briefings), modo)
+    return briefings, resultados
 
 
-def entregar(briefing, settings: Settings, dry_run: bool) -> dict[str, str]:
-    """Etapa 4: entrega nos 3 canais, com erro isolado por canal."""
+def entregar(briefing, settings: Settings, dry_run: bool, lang: str = "pt") -> dict[str, str]:
+    """Etapa 4: entrega nos 3 canais (no idioma `lang`), com erro isolado por canal."""
     status: dict[str, str] = {}
+    suf = f"_{lang}"
 
     # --- DOCX (sempre gerado em arquivo) ---
     try:
-        caminho = docx_writer.write(briefing, OUT / "briefing.docx")
+        caminho = docx_writer.write(briefing, OUT / f"briefing{suf}.docx")
         status["docx"] = f"OK -> {caminho}"
     except Exception as e:
         log.exception("DOCX falhou")
@@ -70,7 +72,7 @@ def entregar(briefing, settings: Settings, dry_run: bool) -> dict[str, str]:
     try:
         if dry_run or not (settings.telegram_bot_token and settings.telegram_chat_id):
             msgs = telegram.render(briefing)
-            preview = OUT / "telegram_preview.txt"
+            preview = OUT / f"telegram_preview{suf}.txt"
             preview.parent.mkdir(parents=True, exist_ok=True)
             preview.write_text("\n\n----- (nova mensagem) -----\n\n".join(msgs), encoding="utf-8")
             status["telegram"] = f"DRY-RUN -> {len(msgs)} msg(s) em {preview}"
@@ -81,10 +83,10 @@ def entregar(briefing, settings: Settings, dry_run: bool) -> dict[str, str]:
         log.exception("Telegram falhou")
         status["telegram"] = f"ERRO: {e}"
 
-    # --- Sheets ---
+    # --- Sheets / download ---
     try:
         if dry_run or not (settings.google_sa_json_path and settings.google_sheets_id):
-            caminho = sheets.to_csv(briefing, OUT / "briefing.csv")
+            caminho = sheets.to_csv(briefing, OUT / f"briefing{suf}.csv")
             status["sheets"] = f"DRY-RUN -> CSV em {caminho}"
         else:
             n = sheets.append(briefing, settings)
@@ -96,14 +98,18 @@ def entregar(briefing, settings: Settings, dry_run: bool) -> dict[str, str]:
     return status
 
 
-def run_pipeline(dry_run: bool = False) -> dict[str, str]:
+def run_pipeline(dry_run: bool = False) -> dict[str, dict[str, str]]:
     settings = Settings.from_env()
-    briefing, _ = construir_briefing(settings)
+    briefings, _ = construir_briefings(settings)
     log.info("== Etapa 4: entrega ==")
-    status = entregar(briefing, settings, dry_run)
-    for canal, s in status.items():
-        log.info("  [%s] %s", canal, s)
-    return status
+    todos: dict[str, dict[str, str]] = {}
+    for lang, briefing in briefings.items():
+        log.info("-- idioma: %s --", lang)
+        status = entregar(briefing, settings, dry_run, lang)
+        for canal, s in status.items():
+            log.info("  [%s/%s] %s", lang, canal, s)
+        todos[lang] = status
+    return todos
 
 
 def agendar() -> None:
