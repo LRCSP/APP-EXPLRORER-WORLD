@@ -39,6 +39,39 @@ class GeminiBrain(Brain):
         return resp.text or ""
 
 
+class OpenRouterBrain(Brain):
+    """OpenRouter: um único endpoint para testar muitas IAs (GPT, Gemini, Llama...)."""
+    name = "openrouter"
+    URL = "https://openrouter.ai/api/v1/chat/completions"
+
+    def __init__(self, api_key: str, model: str):
+        import requests
+        self._requests = requests
+        self._key = api_key
+        self._model = model
+
+    def complete(self, system, prompt, max_tokens=800, json=False):
+        body = {
+            "model": self._model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+            "max_tokens": max_tokens,
+        }
+        if json:
+            body["response_format"] = {"type": "json_object"}
+        resp = self._requests.post(
+            self.URL,
+            headers={"Authorization": f"Bearer {self._key}", "Content-Type": "application/json"},
+            json=body,
+            timeout=60,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return data["choices"][0]["message"]["content"] or ""
+
+
 class AnthropicBrain(Brain):
     name = "anthropic"
 
@@ -63,6 +96,8 @@ def _resolver_provedor(settings: Settings) -> str:
         return provider
     if settings.gemini_api_key:
         return "gemini"
+    if settings.openrouter_api_key:
+        return "openrouter"
     if settings.anthropic_api_key:
         return "anthropic"
     return "demo"
@@ -77,6 +112,8 @@ def make_brain(settings: Settings, fast: bool = False) -> Brain | None:
     try:
         if provider == "gemini" and settings.gemini_api_key:
             return GeminiBrain(settings.gemini_api_key, settings.gemini_model)
+        if provider == "openrouter" and settings.openrouter_api_key:
+            return OpenRouterBrain(settings.openrouter_api_key, settings.openrouter_model)
         if provider == "anthropic" and settings.anthropic_api_key:
             model = settings.anthropic_model_fast if fast else settings.anthropic_model
             return AnthropicBrain(settings.anthropic_api_key, model)

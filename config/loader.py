@@ -70,6 +70,9 @@ class Settings:
     # Gemini (faixa gratuita) — opção mais barata.
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.0-flash"
+    # OpenRouter — um endpoint para testar muitas IAs.
+    openrouter_api_key: str | None = None
+    openrouter_model: str = "openrouter/auto"
     # Anthropic (alternativa).
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-haiku-4-5"        # impacto (Fase 3)
@@ -92,6 +95,8 @@ class Settings:
             llm_provider=os.getenv("LLM_PROVIDER", "auto").strip().lower(),
             gemini_api_key=os.getenv("GEMINI_API_KEY"),
             gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
+            openrouter_api_key=os.getenv("OPENROUTER_API_KEY"),
+            openrouter_model=os.getenv("OPENROUTER_MODEL", "openrouter/auto"),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
             anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
             anthropic_model_fast=os.getenv("ANTHROPIC_MODEL_FAST", "claude-haiku-4-5"),
