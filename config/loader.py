@@ -65,6 +65,12 @@ def load_sources(path: Path | str = SOURCES_PATH) -> SourcesConfig:
 @dataclass
 class Settings:
     """Configuração runtime vinda do ambiente (.env)."""
+    # Provedor do "cérebro": "auto" (default), "gemini", "anthropic" ou "demo".
+    llm_provider: str = "auto"
+    # Gemini (faixa gratuita) — opção mais barata.
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.0-flash"
+    # Anthropic (alternativa).
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-haiku-4-5"        # impacto (Fase 3)
     anthropic_model_fast: str = "claude-haiku-4-5"   # classificação/tradução (Fase 2)
@@ -83,6 +89,9 @@ class Settings:
     def from_env(cls) -> "Settings":
         idiomas = [i.strip().lower() for i in os.getenv("IDIOMAS", "pt,en").split(",") if i.strip()]
         return cls(
+            llm_provider=os.getenv("LLM_PROVIDER", "auto").strip().lower(),
+            gemini_api_key=os.getenv("GEMINI_API_KEY"),
+            gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
             anthropic_model=os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
             anthropic_model_fast=os.getenv("ANTHROPIC_MODEL_FAST", "claude-haiku-4-5"),

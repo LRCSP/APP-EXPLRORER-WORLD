@@ -88,19 +88,26 @@ python -m tools.validate_sources
 
 ### Modo DEMO x Modo REAL
 
-Sem `ANTHROPIC_API_KEY`, a classificação e o impacto rodam em **modo DEMO**
+Sem nenhuma chave de IA, a classificação e o impacto rodam em **modo DEMO**
 (heurística por palavras-chave + textos templated) — útil para ver o pipeline
-funcionando. Com a chave presente, o sistema usa a **API Anthropic** de verdade,
-gerando classificação e impacto operacional específicos por evento. A troca é
+funcionando. Com uma chave presente, o sistema usa a IA de verdade, gerando
+classificação e impacto operacional específicos por evento. A troca é
 automática: nenhum código muda.
+
+O "cérebro" é isolado e aceita **dois provedores** (escolha no `.env` via
+`LLM_PROVIDER`):
+- **Gemini** (`GEMINI_API_KEY`) — tem **faixa gratuita**, opção mais barata.
+- **Anthropic** (`ANTHROPIC_API_KEY`) — alternativa.
 
 ## Como ligar de verdade (3 chaves)
 
 Tudo vai no arquivo `.env` (copie de `.env.example`). Nada de chave no código.
 
-1. **API Anthropic** (cérebro: análise + impacto)
-   - Crie a chave em https://console.anthropic.com → API Keys.
-   - Cole em `ANTHROPIC_API_KEY`.
+1. **Chave da IA** (cérebro: análise + impacto) — escolha uma:
+   - **Gemini (mais barato, faixa gratuita):** https://aistudio.google.com/apikey
+     → cole em `GEMINI_API_KEY` (começa com `AIza...`).
+   - **Anthropic (alternativa):** https://console.anthropic.com → API Keys
+     → cole em `ANTHROPIC_API_KEY`.
 
 2. **Telegram** (entrega no celular)
    - No Telegram, fale com o **@BotFather**, mande `/newbot`, siga os passos.

@@ -151,7 +151,7 @@ def _extrai_json(texto: str):
         raise
 
 
-def _blocos_api(client, model: str, ev: Evento, idiomas: list[str]) -> dict[str, dict]:
+def _blocos_api(brain, ev: Evento, idiomas: list[str]) -> dict[str, dict]:
     """Retorna {idioma: {campo: texto}}. Pede todos os idiomas numa só chamada."""
     prompt = (
         "Evento:\n"
@@ -165,13 +165,7 @@ def _blocos_api(client, model: str, ev: Evento, idiomas: list[str]) -> dict[str,
         '{"<idioma>": {"impacto_custo": "...", "impacto_cadeia": "...", '
         '"exposicao_cyber": "...", "acao_recomendada": "..."}}'
     )
-    msg = client.messages.create(
-        model=model,
-        max_tokens=900,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    texto = "".join(b.text for b in msg.content if getattr(b, "type", None) == "text")
+    texto = brain.complete(SYSTEM_PROMPT, prompt, max_tokens=900, json=True)
     dados = _extrai_json(texto)
     out: dict[str, dict] = {}
     for lang in idiomas:
@@ -192,17 +186,11 @@ def montar_briefings(
     idiomas = settings.idiomas or ["pt"]
     top = eventos_rankeados[:top_n]
 
-    use_api = bool(settings.anthropic_api_key)
-    client = None
-    if use_api:
-        try:
-            from anthropic import Anthropic
-            client = Anthropic(api_key=settings.anthropic_api_key)
-        except Exception as e:
-            log.warning("anthropic indisponível (%s); impacto em modo DEMO", e)
-            use_api = False
+    from brain import make_brain
+    brain = make_brain(settings, fast=False)
+    use_api = brain is not None
 
-    modo = "api" if use_api else "demo"
+    modo = brain.name if use_api else "demo"
     total = total_ingerido if total_ingerido is not None else len(eventos_rankeados)
     briefings = {lang: Briefing.novo(modo=modo, total_ingerido=total) for lang in idiomas}
 
@@ -210,7 +198,7 @@ def montar_briefings(
         # blocos por idioma
         if use_api:
             try:
-                blocos = _blocos_api(client, settings.anthropic_model, ev, idiomas)
+                blocos = _blocos_api(brain, ev, idiomas)
                 if not any(any(b.values()) for b in blocos.values()):
                     raise ValueError("resposta vazia")
             except Exception as e:
