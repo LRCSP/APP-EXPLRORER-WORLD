@@ -6,15 +6,17 @@
 <title>GEO·INTEL — protótipo v3</title>
 <style>
   :root{
-    --bg:#04060c; --bg2:#0a1020; --panel:#0d1424; --line:#1b2742;
-    --txt:#eaf0fb; --muted:#8597b8; --accent:#36e0c8; --accent2:#4f8bff;
-    --red:#ff5d63; --amber:#ffb443; --green:#37d39b; --grid:rgba(120,150,200,.10);
-    --globeline:rgba(120,160,220,.16);
+    /* tema escuro = AZUL ESCURO (navy), acentos em tons de AZUL */
+    --bg:#071324; --bg2:#0b1c34; --panel:#0e2240; --line:#1d3559;
+    --txt:#eaf1fb; --muted:#94a7c6; --accent:#5aa2ff; --accent2:#2f6fe0;
+    --red:#ff5d63; --amber:#ffb443; --green:#37d39b; --grid:rgba(120,160,220,.12);
+    --globeline:rgba(120,170,235,.18);
   }
   [data-theme="light"]{
-    --bg:#ffffff; --bg2:#f7f9fd; --panel:#ffffff; --line:#e4e9f3;
-    --txt:#0b1426; --muted:#5a6b86; --accent:#0d9488; --accent2:#2563eb;
-    --grid:rgba(40,70,120,.08); --globeline:rgba(40,90,160,.14);
+    /* tema claro = BRANCO limpo, texto quase preto, acentos AZUIS */
+    --bg:#ffffff; --bg2:#f4f7fc; --panel:#ffffff; --line:#dde5f1;
+    --txt:#0a1322; --muted:#3f5273; --accent:#1f6fe0; --accent2:#0e4fc0;
+    --grid:rgba(20,50,110,.10); --globeline:rgba(20,60,130,.16);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -27,7 +29,7 @@
   .aura{position:fixed;z-index:-1;width:60vw;height:60vw;border-radius:50%;filter:blur(130px);opacity:.15;
     background:radial-gradient(circle,var(--accent2),transparent 62%);top:-12vw;right:-10vw}
   [data-theme="light"] .aura{opacity:.08}
-  #prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 12px var(--accent)}
+  #prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;background:var(--accent);box-shadow:0 0 12px var(--accent)}
 
   header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
     padding:15px 28px;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
@@ -36,16 +38,16 @@
   .brand small{color:var(--muted);font-weight:500}
   .nav{display:flex;gap:10px;align-items:center}
   .toggle,.login{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);padding:8px 14px;border-radius:999px;font-size:13px}
-  .login{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121a;border:none;font-weight:700}
+  .login{background:var(--accent2);color:#fff;border:none;font-weight:700}
 
   .hero{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;position:relative}
   .kicker{color:var(--accent);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px}
   .hero h1{font-size:clamp(36px,5.4vw,72px);line-height:1.0;font-weight:800;letter-spacing:-1.5px}
-  .hero h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero h1 span{color:var(--accent)}
   .hero p{color:var(--muted);font-size:18px;margin-top:22px;max-width:520px}
   .cta{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap}
   .btn{padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;border:1px solid var(--line);text-decoration:none;color:var(--txt)}
-  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121a;border:none}
+  .btn.primary{background:var(--accent2);color:#fff;border:none}
   #globe{width:100%;max-width:540px;aspect-ratio:1;margin-left:auto;display:block;will-change:transform}
   .scrollhint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;animation:bob 1.8s infinite}
   @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,9px)}}
@@ -64,6 +66,8 @@
   .chart .top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px}
   .chart .label{font-size:13px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
   .chart .price{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .chart .unit,.stat .unit{color:var(--muted);font-size:11.5px;margin-top:2px}
+  .stat .unit{margin-top:4px}
   .chart .chg{font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
   .chart canvas{width:100%;height:140px;display:block}
   .chart .foot{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
@@ -79,7 +83,7 @@
   .experts{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:42px}
   .exp{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:10px}
   .exp .who{display:flex;align-items:center;gap:12px}
-  .exp .ava{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));flex:none}
+  .exp .ava{width:42px;height:42px;border-radius:50%;background:var(--accent2);flex:none}
   .exp .who b{font-size:15px} .exp .who span{display:block;color:var(--muted);font-size:12px}
   .exp .area{align-self:flex-start;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
   .exp p{font-size:14.5px;color:var(--txt)}
@@ -219,10 +223,15 @@ tb.onclick=()=>{const d=root.getAttribute('data-theme')==='dark';root.setAttribu
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
 
 const META={
-  USD:{name:'Dólar · USD/BRL',dec:2,pre:'R$ '}, EUR:{name:'Euro · EUR/BRL',dec:2,pre:'R$ '},
-  IBOV:{name:'Ibovespa',dec:0,pre:''}, BTC:{name:'Bitcoin · USD',dec:0,pre:'US$ '},
-  SOJA:{name:'Soja (CBOT)',dec:1,pre:''}, MILHO:{name:'Milho (CBOT)',dec:1,pre:''},
-  CAFE:{name:'Café (ICE)',dec:1,pre:''}, BOI:{name:'Boi gordo (CME)',dec:1,pre:''}, OURO:{name:'Ouro',dec:0,pre:'US$ '},
+  USD:{name:'Dólar',dec:2,pre:'R$ ',unit:'reais por US$ 1'},
+  EUR:{name:'Euro',dec:2,pre:'R$ ',unit:'reais por € 1'},
+  IBOV:{name:'Ibovespa',dec:0,pre:'',unit:'pontos do índice'},
+  BTC:{name:'Bitcoin',dec:0,pre:'US$ ',unit:'dólares por 1 BTC'},
+  SOJA:{name:'Soja',dec:1,pre:'',unit:'US¢ por bushel · bolsa de Chicago (CBOT)'},
+  MILHO:{name:'Milho',dec:1,pre:'',unit:'US¢ por bushel · bolsa de Chicago (CBOT)'},
+  CAFE:{name:'Café',dec:1,pre:'',unit:'US¢ por libra-peso · bolsa ICE'},
+  BOI:{name:'Boi gordo',dec:1,pre:'',unit:'US¢ por libra-peso · bolsa CME'},
+  OURO:{name:'Ouro',dec:0,pre:'US$ ',unit:'dólares por onça-troy'},
 };
 const fmt=(k,v)=>{const m=META[k]||{dec:2,pre:''};return m.pre+v.toLocaleString('pt-BR',{minimumFractionDigits:m.dec,maximumFractionDigits:m.dec});};
 
@@ -238,7 +247,7 @@ function drawLine(ctx,W,H,data,prog,up){
   const X=i=>pad+(W-2*pad)*(i/(data.length-1)), Y=v=>H-pad-(H-2*pad)*((v-lo)/span);
   ctx.strokeStyle=cssv('--grid');ctx.lineWidth=1;
   for(let g=0;g<=2;g++){const y=pad+(H-2*pad)*g/2;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
-  const n=clamp(prog,0,1)*(data.length-1),full=Math.floor(n),frac=n-full,col=up?cssv('--green'):cssv('--red');
+  const n=clamp(prog,0,1)*(data.length-1),full=Math.floor(n),frac=n-full,col=cssv('--accent');
   let ex=X(full),ey=Y(data[full]);
   if(full<data.length-1){ex=lerp(X(full),X(full+1),frac);ey=lerp(Y(data[full]),Y(data[full+1]),frac);}
   ctx.beginPath();ctx.moveTo(X(0),Y(data[0]));for(let i=1;i<=full;i++)ctx.lineTo(X(i),Y(data[i]));ctx.lineTo(ex,ey);
@@ -256,7 +265,8 @@ function card(key){
   const el=document.createElement('div');el.className='chart reveal';el.dataset.key=key;
   el.innerHTML=`<span class="arrow">↗</span>
     <div class="top"><div><div class="label">${META[key].name}</div><div class="price">—</div></div>
-    <div class="chg ${up?'up':'down'}">${up?'▲ +':'▼ '}${chg.toFixed(2)}%</div></div>
+    <div class="chg ${up?'up':'down'}">${up?'▲ +':'▼ '}${chg.toFixed(2)}% <span style="opacity:.7;font-weight:500">30d</span></div></div>
+    <div class="unit">${META[key].unit}</div>
     <canvas></canvas>
     <div class="foot"><span>mín ${fmt(key,Math.min(...d))}</span><span>máx ${fmt(key,Math.max(...d))}</span></div>`;
   el.onclick=()=>openModal(key);
@@ -269,14 +279,14 @@ document.querySelectorAll('.chart').forEach(el=>io.observe(el));
 
 /* Brasil mini stats (ilustrativos p/ inflação e cesta; commodities reais) */
 const miniBR=[
-  {l:'IPCA · 12 meses',v:'4,52%',spark:[4.1,4.2,4.3,4.4,4.5,4.6,4.52],up:true,note:'IBGE'},
-  {l:'Cesta básica · SP',v:'R$ 851',spark:[810,820,835,840,848,855,851],up:false,note:'DIEESE'},
-  {l:'Café (ICE) · mês',v:'+15,9%',spark:SERIES.CAFE,up:true,note:'real'},
-  {l:'Ouro · mês',v:'-10,0%',spark:SERIES.OURO,up:false,note:'real'},
+  {l:'IPCA',v:'4,52%',u:'inflação acumulada em 12 meses · IBGE',spark:[4.1,4.2,4.3,4.4,4.5,4.6,4.52],up:true},
+  {l:'Cesta básica',v:'R$ 851',u:'custo mensal (São Paulo) · DIEESE',spark:[810,820,835,840,848,855,851],up:false},
+  {l:'Café',v:'+15,9%',u:'variação da cotação no mês · ICE',spark:SERIES.CAFE,up:true},
+  {l:'Ouro',v:'-10,0%',u:'variação da cotação no mês',spark:SERIES.OURO,up:false},
 ];
 miniBR.forEach(s=>{
   const el=document.createElement('div');el.className='stat reveal';
-  el.innerHTML=`<div class="l">${s.l}</div><div class="v">${s.v}</div><canvas></canvas>`;
+  el.innerHTML=`<div class="l">${s.l}</div><div class="v">${s.v}</div><div class="unit">${s.u}</div><canvas></canvas>`;
   document.getElementById('miniBR').appendChild(el);io.observe(el);
   const ctx=el.querySelector('canvas').getContext('2d');
   requestAnimationFrame(()=>drawLine(ctx,el.clientWidth-36,42,s.spark,1,s.up));
@@ -302,7 +312,7 @@ const modal=document.getElementById('modal');
 function openModal(key){
   const d=SERIES[key];const up=d.slice(-1)[0]>=d[0];const chg=(d.slice(-1)[0]-d[0])/d[0]*100;
   document.getElementById('mTitle').textContent=META[key].name;
-  document.getElementById('mChg').innerHTML=`Atual <b>${fmt(key,d.slice(-1)[0])}</b> · 30 dias <b style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${chg.toFixed(2)}%</b>`;
+  document.getElementById('mChg').innerHTML=`${META[key].unit} &nbsp;·&nbsp; atual <b>${fmt(key,d.slice(-1)[0])}</b> &nbsp;·&nbsp; 30 dias <b style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${chg.toFixed(2)}%</b>`;
   document.getElementById('mStats').innerHTML=[['Atual',fmt(key,d.slice(-1)[0])],['Mínimo',fmt(key,Math.min(...d))],['Máximo',fmt(key,Math.max(...d))],['Pontos',d.length+' dias']].map(([l,v])=>`<div class="b"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('');
   modal.classList.add('on');
   const c=document.getElementById('mCanvas');requestAnimationFrame(()=>drawLine(c.getContext('2d'),c.clientWidth,240,d,1,up));
