@@ -27,6 +27,11 @@ class Source:
     sector: str
     type: str = "rss"
     enabled: bool = True
+    # Metadados globais/bilíngues
+    language: str = "en"        # idioma original da fonte (pt, en, es, ...)
+    region: str = "global"      # global, americas, europe, asia, brazil, ...
+    country: str = ""           # ISO-2 (US, BR, GB, ...) ou "" / "INT"
+    tier: str = "media"         # official, media, aggregator
 
 
 @dataclass
@@ -52,6 +57,10 @@ def load_sources(path: Path | str = SOURCES_PATH) -> SourcesConfig:
             sector=s.get("sector", "geral"),
             type=s.get("type", defaults.get("type", "rss")),
             enabled=s.get("enabled", True),
+            language=s.get("language", defaults.get("language", "en")),
+            region=s.get("region", defaults.get("region", "global")),
+            country=s.get("country", defaults.get("country", "")),
+            tier=s.get("tier", defaults.get("tier", "media")),
         )
         for s in raw_sources
     ]

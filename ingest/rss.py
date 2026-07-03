@@ -82,6 +82,9 @@ def fetch_source(source: Source, cfg: SourcesConfig) -> FetchResult:
                 data=_parse_date(e),
                 setor=source.sector,
                 texto_bruto=resumo or titulo,
+                idioma_original=source.language,
+                pais=source.country,
+                regiao=source.region,
             )
         )
     return FetchResult(source, True, eventos, None, n_entries=len(entries), status=status)

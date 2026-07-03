@@ -19,6 +19,9 @@ class Evento:
     data: str            # ISO 8601 quando possível; string original caso contrário
     setor: str
     texto_bruto: str
+    idioma_original: str = "en"   # idioma da fonte (preserva original p/ tradução PT⇄EN)
+    pais: str = ""                # país da fonte (ISO-2)
+    regiao: str = "global"        # região da fonte
     extra: dict[str, Any] = field(default_factory=dict)
 
     @property
