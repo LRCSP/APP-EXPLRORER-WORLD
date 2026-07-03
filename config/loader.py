@@ -87,6 +87,9 @@ class Settings:
     top_n_events: int = 10
     # Quantos eventos (pré-filtrados de graça) vão para a IA classificar.
     ai_max_events: int = 50
+    # Diversidade do ranking: máximo de eventos por fonte e por setor no topo.
+    max_per_source: int = 2
+    max_per_sector: int = 3
     log_level: str = "INFO"
     idiomas: list[str] = field(default_factory=lambda: ["pt", "en"])
 
@@ -111,6 +114,8 @@ class Settings:
             timezone=os.getenv("TIMEZONE", "America/Sao_Paulo"),
             top_n_events=int(os.getenv("TOP_N_EVENTS", "10")),
             ai_max_events=int(os.getenv("AI_MAX_EVENTS", "50")),
+            max_per_source=int(os.getenv("MAX_PER_SOURCE", "2")),
+            max_per_sector=int(os.getenv("MAX_PER_SECTOR", "3")),
             log_level=os.getenv("LOG_LEVEL", "INFO"),
             idiomas=idiomas or ["pt"],
         )

@@ -168,4 +168,6 @@ def run(eventos: list[Evento], settings: Settings | None = None, batch_size: int
     eventos_ordenados = sorted(
         eventos, key=lambda e: (e.extra.get("relevancia", 0), e.extra.get("severidade", 0)), reverse=True
     )
-    return eventos_ordenados
+    # Passo de diversidade: evita "10 notícias parecidas" no topo.
+    from analysis.diversity import diversify
+    return diversify(eventos_ordenados, settings.max_per_source, settings.max_per_sector)
