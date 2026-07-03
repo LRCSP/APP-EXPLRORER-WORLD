@@ -11,12 +11,16 @@ from typing import Any
 
 @dataclass
 class EventoBriefing:
-    """Um evento já analisado e com impacto operacional gerado."""
-    titulo: str
+    """Um evento já analisado e com impacto operacional gerado, num idioma.
+
+    Preserva SEMPRE o original (idioma/título/fonte/URL) e traz a camada
+    traduzida/adaptada para o idioma deste briefing.
+    """
+    titulo: str              # título no idioma do briefing (traduzido/adaptado)
     fonte: str
     url: str
     data: str
-    setor: str
+    setor: str               # setor técnico (backend)
     geografia: str
     severidade: int          # 1-5
     relevancia: int          # 1-10
@@ -24,6 +28,14 @@ class EventoBriefing:
     impacto_cadeia: str
     exposicao_cyber: str
     acao_recomendada: str
+    # --- camada de idioma / preservação do original ---
+    resumo: str = ""             # resumo/adaptação contextual no idioma do briefing
+    idioma_original: str = "en"  # idioma da fonte
+    titulo_original: str = ""    # título como saiu da fonte (nunca sobrescrito)
+    resumo_original: str = ""    # resumo como saiu da fonte
+    pais: str = ""
+    regiao: str = "global"
+    editoria: str = ""           # rótulo público bilíngue (ex.: "Tecnologia & Inovação")
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

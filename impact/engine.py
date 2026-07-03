@@ -18,6 +18,7 @@ import logging
 import re
 
 from config.loader import Settings
+from config.editorias import rotulo
 from ingest.schema import Evento
 from impact.models import Briefing, EventoBriefing
 
@@ -123,6 +124,48 @@ _DEMO = {
     },
 }
 
+# Setores adicionais (Tecnologia & Inovação, Economia, Geopolítica) — DEMO.
+_DEMO["pt"].update({
+    "tecnologia": {
+        "impacto_custo": "Nova tecnologia/IA pode mudar custo de operação e produtividade; avalie adoção.",
+        "impacto_cadeia": "Fornecedores de software/hardware podem alterar prazos e dependências.",
+        "exposicao_cyber": "Toda nova adoção amplia a superfície de ataque; revise segurança.",
+        "acao_recomendada": "Acompanhe a tendência e teste um piloto antes de comprometer orçamento.",
+    },
+    "economia": {
+        "impacto_custo": "Juros, câmbio e inflação afetam diretamente custo de capital e insumos.",
+        "impacto_cadeia": "Condições macro alteram crédito e prazos ao longo da cadeia.",
+        "exposicao_cyber": "Sem exposição cyber direta relevante.",
+        "acao_recomendada": "Revise premissas de câmbio e juros no orçamento do trimestre.",
+    },
+    "geopolitica": {
+        "impacto_custo": "Tensão geopolítica pode elevar prêmios de risco, energia e frete.",
+        "impacto_cadeia": "Conflitos e sanções reconfiguram rotas e fornecedores.",
+        "exposicao_cyber": "Cenários de tensão elevam risco de ataques a infraestrutura.",
+        "acao_recomendada": "Mapeie exposição a regiões em tensão e planos de contingência.",
+    },
+})
+_DEMO["en"].update({
+    "tecnologia": {
+        "impacto_custo": "New tech/AI can shift operating cost and productivity; assess adoption.",
+        "impacto_cadeia": "Software/hardware suppliers may change lead times and dependencies.",
+        "exposicao_cyber": "Every new adoption widens the attack surface; review security.",
+        "acao_recomendada": "Track the trend and pilot before committing budget.",
+    },
+    "economia": {
+        "impacto_custo": "Rates, FX and inflation directly hit cost of capital and inputs.",
+        "impacto_cadeia": "Macro conditions change credit and lead times across the chain.",
+        "exposicao_cyber": "No material direct cyber exposure.",
+        "acao_recomendada": "Revisit FX and rate assumptions in the quarter's budget.",
+    },
+    "geopolitica": {
+        "impacto_custo": "Geopolitical tension can raise risk premia, energy and freight.",
+        "impacto_cadeia": "Conflicts and sanctions reshape routes and suppliers.",
+        "exposicao_cyber": "Tension scenarios raise the risk of infrastructure attacks.",
+        "acao_recomendada": "Map exposure to tense regions and contingency plans.",
+    },
+})
+
 _PREFIXO = {
     "pt": {"alto": "ALTO — ", "med": "Moderado — ", "baixo": "Baixo — ", "origem": "origem"},
     "en": {"alto": "HIGH — ", "med": "Moderate — ", "baixo": "Low — ", "origem": "source"},
@@ -131,12 +174,16 @@ _PREFIXO = {
 
 def _bloco_demo(ev: Evento, lang: str) -> dict:
     setores = _DEMO.get(lang, _DEMO["pt"])
-    base = dict(setores.get(ev.setor, setores["exportacoes"]))
+    setor = ev.extra.get("setor", ev.setor)
+    base = dict(setores.get(setor, setores["exportacoes"]))
     sev = ev.extra.get("severidade", 1)
     geo = ev.extra.get("geografia", "Global")
     pf = _PREFIXO.get(lang, _PREFIXO["pt"])
     nivel = pf["alto"] if sev >= 4 else (pf["med"] if sev >= 2 else pf["baixo"])
     base["impacto_custo"] = f"{nivel}{base['impacto_custo']} ({pf['origem']}: {geo})"
+    # DEMO não traduz de verdade: usa título/resumo originais.
+    base["titulo"] = ev.extra.get("titulo_i18n", {}).get(lang) or ev.titulo
+    base["resumo"] = (ev.texto_bruto or ev.titulo)[:400]
     return base
 
 
@@ -152,25 +199,34 @@ def _extrai_json(texto: str):
 
 
 def _blocos_api(brain, ev: Evento, idiomas: list[str]) -> dict[str, dict]:
-    """Retorna {idioma: {campo: texto}}. Pede todos os idiomas numa só chamada."""
+    """Retorna {idioma: {titulo, resumo, +4 campos de impacto}}. Uma só chamada."""
     prompt = (
-        "Evento:\n"
-        f"- Título: {ev.titulo}\n"
+        f"Evento (idioma original da fonte: {ev.idioma_original}):\n"
+        f"- Título original: {ev.titulo}\n"
         f"- Setor: {ev.extra.get('setor', ev.setor)}\n"
-        f"- Geografia: {ev.extra.get('geografia', 'Global')}\n"
+        f"- Geografia: {ev.extra.get('geografia', 'Global')} · país da fonte: {ev.pais or 'n/d'}\n"
         f"- Severidade (1-5): {ev.extra.get('severidade', 1)}\n"
-        f"- Resumo: {ev.texto_bruto[:600]}\n\n"
-        "Gere o impacto operacional para um empresário, em CADA idioma de "
-        f"{idiomas} (pt=português, en=inglês). Responda APENAS com JSON no formato:\n"
-        '{"<idioma>": {"impacto_custo": "...", "impacto_cadeia": "...", '
-        '"exposicao_cyber": "...", "acao_recomendada": "..."}}'
+        f"- Resumo original: {ev.texto_bruto[:600]}\n\n"
+        "Para CADA idioma de "
+        f"{idiomas} (pt=português, en=inglês), devolva um objeto com:\n"
+        '  "titulo": tradução CONTEXTUAL (não literal) do título;\n'
+        '  "resumo": 1-2 frases adaptando o resumo, explicando termos locais quando '
+        'necessário (ex.: "Selic" em inglês -> "Selic, Brazil\'s benchmark interest rate");\n'
+        '  "impacto_custo", "impacto_cadeia", "exposicao_cyber", "acao_recomendada".\n'
+        "Se a fonte estiver em outro idioma, traduza/adapte mantendo o sentido. "
+        "Responda APENAS com JSON no formato:\n"
+        '{"<idioma>": {"titulo":"...","resumo":"...","impacto_custo":"...",'
+        '"impacto_cadeia":"...","exposicao_cyber":"...","acao_recomendada":"..."}}'
     )
-    texto = brain.complete(SYSTEM_PROMPT, prompt, max_tokens=900, json=True)
+    texto = brain.complete(SYSTEM_PROMPT, prompt, max_tokens=1200, json=True)
     dados = _extrai_json(texto)
     out: dict[str, dict] = {}
     for lang in idiomas:
         d = dados.get(lang, {}) if isinstance(dados, dict) else {}
-        out[lang] = {c: str(d.get(c, "")).strip() for c in CAMPOS}
+        bloco = {c: str(d.get(c, "")).strip() for c in CAMPOS}
+        bloco["titulo"] = str(d.get("titulo", "")).strip()
+        bloco["resumo"] = str(d.get("resumo", "")).strip()
+        out[lang] = bloco
     return out
 
 
@@ -208,15 +264,18 @@ def montar_briefings(
             blocos = {lang: _bloco_demo(ev, lang) for lang in idiomas}
 
         titulo_i18n = ev.extra.get("titulo_i18n", {})
+        setor = ev.extra.get("setor", ev.setor)
         for lang in idiomas:
             bloco = blocos.get(lang) or _bloco_demo(ev, lang)
+            titulo = bloco.get("titulo") or titulo_i18n.get(lang) or ev.titulo
+            resumo = bloco.get("resumo") or (ev.texto_bruto or "")[:400]
             briefings[lang].eventos.append(
                 EventoBriefing(
-                    titulo=titulo_i18n.get(lang, ev.titulo),
+                    titulo=titulo,
                     fonte=ev.fonte,
                     url=ev.url,
                     data=ev.data,
-                    setor=ev.extra.get("setor", ev.setor),
+                    setor=setor,
                     geografia=ev.extra.get("geografia", "Global"),
                     severidade=int(ev.extra.get("severidade", 1)),
                     relevancia=int(ev.extra.get("relevancia", 1)),
@@ -224,6 +283,13 @@ def montar_briefings(
                     impacto_cadeia=bloco["impacto_cadeia"],
                     exposicao_cyber=bloco["exposicao_cyber"],
                     acao_recomendada=bloco["acao_recomendada"],
+                    resumo=resumo,
+                    idioma_original=ev.idioma_original,
+                    titulo_original=ev.titulo,
+                    resumo_original=(ev.texto_bruto or "")[:600],
+                    pais=ev.pais,
+                    regiao=ev.regiao,
+                    editoria=rotulo(setor, lang),
                 )
             )
     return briefings

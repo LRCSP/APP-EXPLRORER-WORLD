@@ -35,7 +35,8 @@ def write(briefing: Briefing, path: str | Path = "out/briefing.docx") -> Path:
     ).italic = True
 
     for setor, eventos in sorted(briefing.por_setor.items()):
-        doc.add_heading(f"Setor: {setor.upper()}", level=1)
+        editoria = getattr(eventos[0], "editoria", "") or setor
+        doc.add_heading(editoria, level=1)
         for ev in eventos:
             h = doc.add_heading(level=2)
             run = h.add_run(f"[sev {ev.severidade}/5] {ev.titulo}")
@@ -46,16 +47,25 @@ def write(briefing: Briefing, path: str | Path = "out/briefing.docx") -> Path:
                 f"{ev.geografia} · relevância {ev.relevancia}/10 · fonte: {ev.fonte}"
             ).italic = True
 
-            for rotulo, valor in (
+            if getattr(ev, "resumo", ""):
+                doc.add_paragraph(ev.resumo)
+
+            for label, valor in (
                 ("Impacto no custo", ev.impacto_custo),
                 ("Impacto na cadeia", ev.impacto_cadeia),
                 ("Exposição cyber", ev.exposicao_cyber),
                 ("Ação recomendada", ev.acao_recomendada),
             ):
                 par = doc.add_paragraph(style="List Bullet")
-                par.add_run(f"{rotulo}: ").bold = True
+                par.add_run(f"{label}: ").bold = True
                 par.add_run(valor)
 
+            orig = doc.add_paragraph()
+            idi = (getattr(ev, "idioma_original", "") or "").upper()
+            orig.add_run(
+                f"Fonte original ({idi}): {getattr(ev, 'titulo_original', '') or ev.titulo}"
+            ).italic = True
+            orig.runs[0].font.size = Pt(8)
             if ev.url:
                 link = doc.add_paragraph()
                 link.add_run(ev.url).font.size = Pt(8)

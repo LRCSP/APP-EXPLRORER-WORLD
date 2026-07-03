@@ -28,16 +28,23 @@ def _esc(t: str) -> str:
 
 def _bloco_evento(ev, idx: int) -> str:
     sev = _SEV.get(ev.severidade, "⚪")
+    editoria = getattr(ev, "editoria", "") or ev.setor
     linhas = [
         f"{sev} <b>{_esc(ev.titulo)}</b>",
-        f"<i>{_esc(ev.setor)} · {_esc(ev.geografia)} · sev {ev.severidade}/5 · relev {ev.relevancia}/10</i>",
+        f"<i>{_esc(editoria)} · {_esc(ev.geografia)} · sev {ev.severidade}/5 · relev {ev.relevancia}/10</i>",
+    ]
+    if getattr(ev, "resumo", ""):
+        linhas.append(f"📝 {_esc(ev.resumo)}")
+    linhas += [
         f"💰 <b>Custo:</b> {_esc(ev.impacto_custo)}",
         f"🔗 <b>Cadeia:</b> {_esc(ev.impacto_cadeia)}",
         f"🛡️ <b>Cyber:</b> {_esc(ev.exposicao_cyber)}",
         f"✅ <b>Ação:</b> {_esc(ev.acao_recomendada)}",
     ]
     if ev.url:
-        linhas.append(f'<a href="{_esc(ev.url)}">fonte: {_esc(ev.fonte)}</a>')
+        idi = (getattr(ev, "idioma_original", "") or "").upper()
+        selo = f" [{idi}]" if idi else ""
+        linhas.append(f'<a href="{_esc(ev.url)}">fonte: {_esc(ev.fonte)}{selo}</a>')
     return "\n".join(linhas)
 
 

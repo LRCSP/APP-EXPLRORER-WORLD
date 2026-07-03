@@ -23,7 +23,8 @@ from ingest.schema import Evento
 
 log = logging.getLogger("analysis")
 
-SETORES = ["energia", "petroleo", "cyber", "fertilizantes", "alimentos", "insumos", "exportacoes"]
+SETORES = ["energia", "petroleo", "cyber", "tecnologia", "fertilizantes", "alimentos",
+           "insumos", "exportacoes", "economia", "geopolitica"]
 
 SYSTEM_PROMPT = (
     "Você é um analista de inteligência geopolítica para empresários. "

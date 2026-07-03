@@ -18,9 +18,10 @@ from impact.models import Briefing
 log = logging.getLogger("delivery.sheets")
 
 CABECALHO = [
-    "gerado_em", "titulo", "setor", "geografia", "severidade", "relevancia",
+    "gerado_em", "editoria", "setor", "titulo", "resumo", "geografia",
+    "pais", "severidade", "relevancia",
     "impacto_custo", "impacto_cadeia", "exposicao_cyber", "acao_recomendada",
-    "fonte", "url", "data_evento",
+    "fonte", "idioma_original", "titulo_original", "url", "data_evento",
 ]
 
 
@@ -29,10 +30,12 @@ def rows(briefing: Briefing) -> list[list[str]]:
     linhas: list[list[str]] = []
     for ev in briefing.eventos:
         linhas.append([
-            briefing.gerado_em, ev.titulo, ev.setor, ev.geografia,
+            briefing.gerado_em, getattr(ev, "editoria", "") or ev.setor, ev.setor,
+            ev.titulo, getattr(ev, "resumo", ""), ev.geografia, getattr(ev, "pais", ""),
             str(ev.severidade), str(ev.relevancia),
             ev.impacto_custo, ev.impacto_cadeia, ev.exposicao_cyber, ev.acao_recomendada,
-            ev.fonte, ev.url, ev.data,
+            ev.fonte, getattr(ev, "idioma_original", ""), getattr(ev, "titulo_original", "") or ev.titulo,
+            ev.url, ev.data,
         ])
     return linhas
 

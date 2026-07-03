@@ -156,3 +156,88 @@ sources:
     country: ""
     tier: aggregator
     enabled: true
+
+  # --------------------------- GEOPOLÍTICA / MACRO ----------------------------
+  - name: "UN News"
+    url: "https://news.un.org/feed/subscribe/en/news/all/rss.xml"
+    sector: geopolitica
+    language: en
+    region: global
+    country: INT
+    tier: official
+    enabled: true
+
+  # ----------------------- TECNOLOGIA & INOVAÇÃO ------------------------------
+  - name: "TechCrunch"
+    url: "https://techcrunch.com/feed/"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "The Verge"
+    url: "https://www.theverge.com/rss/index.xml"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "MIT Technology Review"
+    url: "https://www.technologyreview.com/feed/"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "Google AI Blog"
+    url: "https://blog.google/technology/ai/rss/"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: official
+    enabled: true
+
+  - name: "OpenAI News"
+    url: "https://openai.com/news/rss.xml"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: official
+    enabled: true
+
+  - name: "Google DeepMind Blog"
+    url: "https://deepmind.google/blog/rss.xml"
+    sector: tecnologia
+    language: en
+    region: global
+    country: GB
+    tier: official
+    enabled: true
+
+  # --------------------------- BRASIL / LATAM ---------------------------------
+  # Fontes em PORTUGUÊS: exercitam a tradução/adaptação PT -> EN.
+  - name: "Agência Brasil"
+    url: "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml"
+    sector: economia
+    language: pt
+    region: brazil
+    country: BR
+    tier: media
+    enabled: true
+
+  - name: "Google News BR — Economia / Selic / PIB"
+    url: "https://news.google.com/rss/search?q=economia+OR+Selic+OR+PIB+Brasil&hl=pt-BR&gl=BR&ceid=BR:pt"
+    sector: economia
+    language: pt
+    region: brazil
+    country: BR
+    tier: aggregator
+    enabled: true
