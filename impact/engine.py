@@ -198,8 +198,14 @@ def _extrai_json(texto: str):
         raise
 
 
-def _blocos_api(brain, ev: Evento, idiomas: list[str]) -> dict[str, dict]:
+def _blocos_api(brain, ev: Evento, idiomas: list[str], lente: dict | None = None) -> dict[str, dict]:
     """Retorna {idioma: {titulo, resumo, +4 campos de impacto}}. Uma só chamada."""
+    lente_txt = ""
+    if lente:
+        lente_txt = (
+            "\nPerspectiva do leitor (adapte impacto e ação a ela; a mesma para todos os idiomas): "
+            f"PT: {lente.get('pt', '')} EN: {lente.get('en', '')}\n"
+        )
     prompt = (
         f"Evento (idioma original da fonte: {ev.idioma_original}):\n"
         f"- Título original: {ev.titulo}\n"
@@ -214,6 +220,7 @@ def _blocos_api(brain, ev: Evento, idiomas: list[str]) -> dict[str, dict]:
         'necessário (ex.: "Selic" em inglês -> "Selic, Brazil\'s benchmark interest rate");\n'
         '  "impacto_custo", "impacto_cadeia", "exposicao_cyber", "acao_recomendada".\n'
         "Se a fonte estiver em outro idioma, traduza/adapte mantendo o sentido. "
+        f"{lente_txt}"
         "Responda APENAS com JSON no formato:\n"
         '{"<idioma>": {"titulo":"...","resumo":"...","impacto_custo":"...",'
         '"impacto_cadeia":"...","exposicao_cyber":"...","acao_recomendada":"..."}}'
@@ -235,8 +242,14 @@ def montar_briefings(
     settings: Settings | None = None,
     top_n: int | None = None,
     total_ingerido: int | None = None,
+    lente: dict | None = None,
+    titulos: dict | None = None,
 ) -> dict[str, Briefing]:
-    """Gera o impacto dos Top N e devolve {idioma: Briefing}."""
+    """Gera o impacto dos Top N e devolve {idioma: Briefing}.
+
+    `lente` (opcional) adapta o impacto à ótica de um perfil; `titulos` define
+    o título do briefing por idioma (ex.: nome do perfil).
+    """
     settings = settings or Settings.from_env()
     top_n = top_n or settings.top_n_events
     idiomas = settings.idiomas or ["pt"]
@@ -249,12 +262,16 @@ def montar_briefings(
     modo = brain.name if use_api else "demo"
     total = total_ingerido if total_ingerido is not None else len(eventos_rankeados)
     briefings = {lang: Briefing.novo(modo=modo, total_ingerido=total) for lang in idiomas}
+    if titulos:
+        for lang in idiomas:
+            if titulos.get(lang):
+                briefings[lang].titulo = titulos[lang]
 
     for ev in top:
         # blocos por idioma
         if use_api:
             try:
-                blocos = _blocos_api(brain, ev, idiomas)
+                blocos = _blocos_api(brain, ev, idiomas, lente)
                 if not any(any(b.values()) for b in blocos.values()):
                     raise ValueError("resposta vazia")
             except Exception as e:

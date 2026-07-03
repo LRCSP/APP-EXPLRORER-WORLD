@@ -1,0 +1,44 @@
+# =============================================================================
+# Perfis fixos de briefing (MVP). Cada perfil recebe o MESMO pool de eventos,
+# mas com ranking reponderado pelos setores de foco e o impacto escrito sob a
+# ótica do perfil (campo "lente"). Bilíngue PT/EN.
+#
+# Ajustar/renomear perfis aqui NÃO exige mexer no código.
+# =============================================================================
+
+profiles:
+  - id: transporte
+    nome:
+      pt: "Transporte & Logística"
+      en: "Transport & Logistics"
+    descricao:
+      pt: "Combustível, frete, rotas, portos e prazos."
+      en: "Fuel, freight, routes, ports and lead times."
+    setores_foco: [petroleo, energia, exportacoes, insumos]
+    lente:
+      pt: "Você escreve para uma empresa de transporte e logística. Enfatize combustível/diesel, frete, rotas, portos, prazos de entrega e custos logísticos."
+      en: "You are writing for a transport & logistics company. Emphasize fuel/diesel, freight, routes, ports, delivery lead times and logistics costs."
+
+  - id: pme
+    nome:
+      pt: "Pequeno/Médio Empresário"
+      en: "Small/Medium Business"
+    descricao:
+      pt: "Custo, insumos, cadeia e segurança digital."
+      en: "Cost, inputs, supply chain and digital security."
+    setores_foco: [economia, insumos, alimentos, cyber, tecnologia]
+    lente:
+      pt: "Você escreve para um pequeno/médio empresário. Enfatize custo operacional, insumos, cadeia de fornecedores e segurança digital básica, em linguagem prática."
+      en: "You are writing for a small/medium business owner. Emphasize operating cost, inputs, supplier chain and basic digital security, in practical language."
+
+  - id: investidor
+    nome:
+      pt: "Investidor Pessoa Física"
+      en: "Retail Investor"
+    descricao:
+      pt: "Câmbio, juros, commodities e risco geopolítico."
+      en: "FX, rates, commodities and geopolitical risk."
+    setores_foco: [economia, geopolitica, petroleo, energia]
+    lente:
+      pt: "Você escreve para um investidor pessoa física. Enfatize impacto em câmbio, juros, commodities e exposição a risco geopolítico. NÃO dê recomendação de compra/venda; foque em contexto e risco."
+      en: "You are writing for a retail investor. Emphasize FX, rates, commodities and geopolitical risk exposure. Do NOT give buy/sell advice; focus on context and risk."

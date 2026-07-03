@@ -55,14 +55,16 @@ def construir_briefings(settings: Settings):
     return briefings, resultados
 
 
-def entregar(briefing, settings: Settings, dry_run: bool, lang: str = "pt") -> dict[str, str]:
+def entregar(briefing, settings: Settings, dry_run: bool, lang: str = "pt",
+             nome_base: str = "briefing") -> dict[str, str]:
     """Etapa 4: entrega nos 3 canais (no idioma `lang`), com erro isolado por canal."""
     status: dict[str, str] = {}
     suf = f"_{lang}"
+    prev_base = "telegram_preview" if nome_base == "briefing" else f"{nome_base}_telegram"
 
     # --- DOCX (sempre gerado em arquivo) ---
     try:
-        caminho = docx_writer.write(briefing, OUT / f"briefing{suf}.docx")
+        caminho = docx_writer.write(briefing, OUT / f"{nome_base}{suf}.docx")
         status["docx"] = f"OK -> {caminho}"
     except Exception as e:
         log.exception("DOCX falhou")
@@ -72,7 +74,7 @@ def entregar(briefing, settings: Settings, dry_run: bool, lang: str = "pt") -> d
     try:
         if dry_run or not (settings.telegram_bot_token and settings.telegram_chat_id):
             msgs = telegram.render(briefing)
-            preview = OUT / f"telegram_preview{suf}.txt"
+            preview = OUT / f"{prev_base}{suf}.txt"
             preview.parent.mkdir(parents=True, exist_ok=True)
             preview.write_text("\n\n----- (nova mensagem) -----\n\n".join(msgs), encoding="utf-8")
             status["telegram"] = f"DRY-RUN -> {len(msgs)} msg(s) em {preview}"
@@ -86,7 +88,7 @@ def entregar(briefing, settings: Settings, dry_run: bool, lang: str = "pt") -> d
     # --- Sheets / download ---
     try:
         if dry_run or not (settings.google_sa_json_path and settings.google_sheets_id):
-            caminho = sheets.to_csv(briefing, OUT / f"briefing{suf}.csv")
+            caminho = sheets.to_csv(briefing, OUT / f"{nome_base}{suf}.csv")
             status["sheets"] = f"DRY-RUN -> CSV em {caminho}"
         else:
             n = sheets.append(briefing, settings)
@@ -112,6 +114,41 @@ def run_pipeline(dry_run: bool = False) -> dict[str, dict[str, str]]:
     return todos
 
 
+def run_profiles(dry_run: bool = False) -> dict[str, dict]:
+    """Gera um briefing por PERFIL fixo (config/profiles.yaml).
+
+    Classifica os eventos UMA vez; para cada perfil reordena por foco e gera o
+    impacto sob a ótica do perfil.
+    """
+    from config.loader import load_profiles
+    from analysis.profiles import rank_for_profile
+
+    settings = Settings.from_env()
+    perfis = load_profiles()
+    log.info("== Perfis: %s ==", [p.id for p in perfis])
+
+    log.info("== Ingestão + classificação (uma vez) ==")
+    eventos, resultados = ingest.run()
+    ok = sum(1 for r in resultados if r.ok)
+    log.info("Fontes OK: %d/%d · eventos únicos: %d", ok, len(resultados), len(eventos))
+    rankeados = analysis.run(eventos, settings)
+
+    todos: dict[str, dict] = {}
+    for p in perfis:
+        log.info("== Perfil: %s ==", p.id)
+        sel = rank_for_profile(rankeados, p, settings.max_per_source, settings.max_per_sector)
+        titulos = {lang: p.nome_de(lang) for lang in (settings.idiomas or ["pt"])}
+        briefs = montar_briefings(
+            sel, settings, settings.top_n_events, len(eventos), lente=p.lente, titulos=titulos
+        )
+        for lang, briefing in briefs.items():
+            status = entregar(briefing, settings, dry_run, lang, nome_base=f"briefing_{p.id}")
+            for canal, s in status.items():
+                log.info("  [%s/%s/%s] %s", p.id, lang, canal, s)
+        todos[p.id] = briefs
+    return todos
+
+
 def agendar() -> None:
     """Agenda execuções recorrentes via APScheduler usando SCHEDULE_CRON."""
     from apscheduler.schedulers.blocking import BlockingScheduler
@@ -134,6 +171,8 @@ def main() -> int:
     g.add_argument("--dry-run", action="store_true", help="roda tudo sem enviar; gera arquivos em out/")
     g.add_argument("--once", action="store_true", help="roda uma vez e entrega nos canais configurados")
     g.add_argument("--schedule", action="store_true", help="agenda execuções (APScheduler)")
+    parser.add_argument("--profiles", action="store_true",
+                        help="gera um briefing por perfil fixo (config/profiles.yaml)")
     args = parser.parse_args()
 
     _setup_logging(Settings.from_env().log_level)
@@ -141,7 +180,10 @@ def main() -> int:
     if args.schedule:
         agendar()
         return 0
-    run_pipeline(dry_run=not args.once)
+    if args.profiles:
+        run_profiles(dry_run=not args.once)
+    else:
+        run_pipeline(dry_run=not args.once)
     return 0
 
 

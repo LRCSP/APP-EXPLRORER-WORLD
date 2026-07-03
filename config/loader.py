@@ -71,6 +71,37 @@ def load_sources(path: Path | str = SOURCES_PATH) -> SourcesConfig:
     )
 
 
+PROFILES_PATH = ROOT / "config" / "profiles.yaml"
+
+
+@dataclass
+class Profile:
+    """Perfil fixo de briefing (MVP)."""
+    id: str
+    nome: dict           # {pt, en}
+    descricao: dict      # {pt, en}
+    setores_foco: list[str]
+    lente: dict          # {pt, en}
+
+    def nome_de(self, lang: str) -> str:
+        return self.nome.get(lang, self.nome.get("pt", self.id))
+
+
+def load_profiles(path: Path | str = PROFILES_PATH) -> list[Profile]:
+    """Lê config/profiles.yaml e devolve os perfis tipados."""
+    data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    return [
+        Profile(
+            id=p["id"],
+            nome=p.get("nome", {}),
+            descricao=p.get("descricao", {}),
+            setores_foco=list(p.get("setores_foco", [])),
+            lente=p.get("lente", {}),
+        )
+        for p in data.get("profiles", [])
+    ]
+
+
 @dataclass
 class Settings:
     """Configuração runtime vinda do ambiente (.env)."""
