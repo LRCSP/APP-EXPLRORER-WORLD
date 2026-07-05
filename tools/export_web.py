@@ -18,7 +18,16 @@ from config.loader import Settings, load_profiles
 import ingest
 import analysis
 from analysis.profiles import rank_for_profile
+from analysis.validators import safe_url
 from impact.engine import montar_briefings
+
+
+def inline_json(data: dict) -> str:
+    """JSON seguro para embutir dentro de <script>: neutraliza </, U+2028/9."""
+    s = json.dumps(data, ensure_ascii=False)
+    return (s.replace("</", "<\\/")
+             .replace(" ", "\\u2028")
+             .replace(" ", "\\u2029"))
 
 log = logging.getLogger("export_web")
 ROOT = Path(__file__).resolve().parent.parent
@@ -64,7 +73,7 @@ def _ev_dict(e) -> dict:
         "geografia": e.geografia, "severidade": e.severidade, "relevancia": e.relevancia,
         "impacto_custo": e.impacto_custo, "impacto_cadeia": e.impacto_cadeia,
         "exposicao_cyber": e.exposicao_cyber, "acao_recomendada": e.acao_recomendada,
-        "fonte": e.fonte, "url": e.url, "idioma_original": e.idioma_original,
+        "fonte": e.fonte, "url": safe_url(e.url), "idioma_original": e.idioma_original,
         "titulo_original": e.titulo_original,
     }
 
@@ -108,7 +117,7 @@ def main() -> int:
     data = build_data(args.top_n)
     (WEB / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     template = (WEB / "template.html").read_text(encoding="utf-8")
-    html = template.replace("DATA_PLACEHOLDER", json.dumps(data, ensure_ascii=False))
+    html = template.replace("DATA_PLACEHOLDER", inline_json(data))
     (WEB / "index.html").write_text(html, encoding="utf-8")
 
     n = sum(len(p["events"].get("pt", [])) for p in data["profiles"])
