@@ -93,12 +93,18 @@ def build_data(top_n: int) -> dict:
         })
 
     from datetime import datetime, timezone
+    import os
     market = fetch_market()
+    cta = {
+        "signup": safe_url(os.getenv("CTA_SIGNUP_URL", "#")),      # Google Forms/Tally/Typeform
+        "whatsapp": safe_url(os.getenv("CTA_WHATSAPP_URL", "#")),  # https://wa.me/55...
+    }
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "profiles": profiles_out,
         "market": market,
         "market_error": len(market) == 0,
+        "cta": cta,
     }
 
 

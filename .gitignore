@@ -21,6 +21,13 @@ out/
 *.docx
 !docs/**/*.docx
 
+# Site gerado (build a partir de web/template.html via tools.export_web) — não versionar
+web/index.html
+web/data.json
+
+# Ambientes virtuais de verificação
+.venv_verify/
+
 # Cache / dedup
 .cache/
 *.sqlite
