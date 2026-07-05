@@ -32,6 +32,7 @@ class Source:
     region: str = "global"      # global, americas, europe, asia, brazil, ...
     country: str = ""           # ISO-2 (US, BR, GB, ...) ou "" / "INT"
     tier: str = "media"         # official, media, aggregator
+    max_entries: int = 0        # 0 = usa o default do SourcesConfig
 
 
 @dataclass
@@ -39,10 +40,15 @@ class SourcesConfig:
     sources: list[Source]
     timeout_seconds: int = 15
     user_agent: str = "GeoIntelMonitor/0.1"
+    default_max_entries: int = 40   # teto de itens por fonte (evita explosão)
+    max_age_days: int = 0           # 0 = desligado; >0 descarta itens mais antigos
 
     @property
     def enabled_sources(self) -> list[Source]:
         return [s for s in self.sources if s.enabled]
+
+    def limite(self, source: Source) -> int:
+        return source.max_entries if source.max_entries > 0 else self.default_max_entries
 
 
 def load_sources(path: Path | str = SOURCES_PATH) -> SourcesConfig:
@@ -61,11 +67,16 @@ def load_sources(path: Path | str = SOURCES_PATH) -> SourcesConfig:
             region=s.get("region", defaults.get("region", "global")),
             country=s.get("country", defaults.get("country", "")),
             tier=s.get("tier", defaults.get("tier", "media")),
+            max_entries=int(s.get("max_entries", 0)),
         )
         for s in raw_sources
     ]
+    env_cap = os.getenv("MAX_ENTRIES_PER_SOURCE")
+    default_max = int(env_cap) if env_cap else int(defaults.get("max_entries", 40))
     return SourcesConfig(
         sources=sources,
+        default_max_entries=default_max,
+        max_age_days=int(os.getenv("MAX_AGE_DAYS", defaults.get("max_age_days", 0))),
         timeout_seconds=int(defaults.get("timeout_seconds", 15)),
         user_agent=str(defaults.get("user_agent", "GeoIntelMonitor/0.1")),
     )

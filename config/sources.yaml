@@ -22,6 +22,8 @@ defaults:
   region: global
   country: ""
   tier: media
+  max_entries: 40      # teto de itens por fonte (override por env MAX_ENTRIES_PER_SOURCE)
+  max_age_days: 0      # 0 = desligado; >0 (env MAX_AGE_DAYS) descarta itens antigos
 
 sources:
   # ----------------------------- ENERGIA --------------------------------------
@@ -211,6 +213,7 @@ sources:
     region: global
     country: US
     tier: official
+    max_entries: 15
     enabled: true
 
   - name: "Google DeepMind Blog"

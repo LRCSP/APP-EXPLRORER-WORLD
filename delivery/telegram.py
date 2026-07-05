@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import html
 import logging
+import re
 
 import requests
 
@@ -48,14 +49,54 @@ def _bloco_evento(ev, idx: int) -> str:
     return "\n".join(linhas)
 
 
+_TAG = re.compile(r"<[^>]+>")
+
+
+def _strip_tags(s: str) -> str:
+    """Remove tags HTML (fallback texto puro) para blocos gigantes."""
+    return html.unescape(_TAG.sub("", s)).strip()
+
+
+def _split_plain(texto: str, limite: int = LIMITE) -> list[str]:
+    """Quebra texto PURO em pedaços <= limite, em fronteiras de palavra."""
+    partes: list[str] = []
+    atual = ""
+    for palavra in texto.split():
+        if len(atual) + len(palavra) + 1 > limite:
+            if atual:
+                partes.append(atual)
+                atual = palavra
+            else:  # palavra única maior que o limite
+                partes.append(palavra[:limite])
+                atual = palavra[limite:]
+        else:
+            atual = f"{atual} {palavra}".strip()
+    if atual:
+        partes.append(atual)
+    return partes or [""]
+
+
 def render(briefing: Briefing) -> list[str]:
-    """Devolve uma lista de mensagens (cada uma <= 4096 chars)."""
+    """Devolve mensagens (cada uma <= 4096 chars).
+
+    Divide por BLOCOS (evento). Um bloco que sozinho passe do limite vira texto
+    puro (sem tags) e, se ainda passar, é quebrado por palavra — nunca corta
+    uma tag HTML no meio.
+    """
     cabecalho = (
         f"📡 <b>{_esc(briefing.titulo)}</b>\n"
         f"<i>{_esc(briefing.gerado_em)} · {len(briefing.eventos)} eventos · "
         f"modo {briefing.modo}</i>"
     )
-    blocos = [cabecalho] + [_bloco_evento(ev, i) for i, ev in enumerate(briefing.eventos, 1)]
+    brutos = [cabecalho] + [_bloco_evento(ev, i) for i, ev in enumerate(briefing.eventos, 1)]
+
+    # Blocos grandes demais: fallback texto puro (pode virar vários pedaços).
+    blocos: list[str] = []
+    for b in brutos:
+        if len(b) <= LIMITE:
+            blocos.append(b)
+        else:
+            blocos.extend(_split_plain(_strip_tags(b)))
 
     mensagens: list[str] = []
     atual = ""
@@ -66,10 +107,6 @@ def render(briefing: Briefing) -> list[str]:
             atual = bloco
         else:
             atual = candidato
-        # bloco isolado maior que o limite: corta com segurança
-        while len(atual) > LIMITE:
-            mensagens.append(atual[:LIMITE])
-            atual = atual[LIMITE:]
     if atual:
         mensagens.append(atual)
     return mensagens

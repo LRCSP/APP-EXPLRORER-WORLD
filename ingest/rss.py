@@ -70,6 +70,19 @@ def fetch_source(source: Source, cfg: SourcesConfig) -> FetchResult:
     if parsed.get("bozo") and not entries:
         return FetchResult(source, False, [], f"feed inválido: {parsed.get('bozo_exception')}", status=status)
 
+    # Janela temporal opcional (descarta itens antigos com data conhecida).
+    if cfg.max_age_days > 0:
+        corte = datetime.now(tz=timezone.utc).timestamp() - cfg.max_age_days * 86400
+        def _recente(e):
+            st = getattr(e, "published_parsed", None) or getattr(e, "updated_parsed", None)
+            return (mktime(st) >= corte) if st else True  # sem data: mantém
+        entries = [e for e in entries if _recente(e)]
+
+    # Teto de itens por fonte (evita explosão — ex.: OpenAI News com 1000+).
+    limite = cfg.limite(source)
+    if limite > 0:
+        entries = entries[:limite]
+
     eventos: list[Evento] = []
     for e in entries:
         titulo = _strip_html(getattr(e, "title", "")) or "(sem título)"
