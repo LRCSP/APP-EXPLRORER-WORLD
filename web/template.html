@@ -164,6 +164,7 @@ const I18N = {
     custo:"Custo", cadeia:"Cadeia", cyber:"Segurança", acao:"Ação",
     fonte:"fonte", ler:"abrir ↗", sev:"sev", relev:"relev",
     gerado:"Atualizado", lock:"histórico completo após login",
+    mkt_err:"Cotações indisponíveis no momento — tente novamente mais tarde.",
     footer:"GEO·INTEL — briefing bilíngue por perfil. Login e entrega diária nas próximas etapas."},
   en:{entrar:"Sign in", kicker:"Geopolitical & financial intelligence",
     h1:'The world in motion, <span>translated into action</span>.',
@@ -176,6 +177,7 @@ const I18N = {
     custo:"Cost", cadeia:"Supply", cyber:"Security", acao:"Action",
     fonte:"source", ler:"open ↗", sev:"sev", relev:"relev",
     gerado:"Updated", lock:"full history after login",
+    mkt_err:"Quotes unavailable right now — please try again later.",
     footer:"GEO·INTEL — bilingual briefing by profile. Login and daily delivery next."},
 };
 
@@ -251,6 +253,10 @@ function drawLine(ctx,W,H,data,prog){
 const mkCards=[];
 function renderMarket(){
   const box=document.getElementById('charts');box.innerHTML='';mkCards.length=0;
+  if(DATA.market_error||!(DATA.market||[]).length){
+    const t=I18N[LANG];const el=document.createElement('div');el.className='chart';el.style.gridColumn='1/-1';
+    el.innerHTML=`<div class="label">${esc(t.mkt_err)}</div>`;box.appendChild(el);return;
+  }
   (DATA.market||[]).forEach(m=>{
     const up=m.pct>=0;const el=document.createElement('div');el.className='chart reveal in';
     el.innerHTML=`<div class="top"><div><div class="label">${esc(m.name)}</div><div class="price">—</div></div>

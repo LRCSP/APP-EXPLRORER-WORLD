@@ -12,8 +12,6 @@ import json
 import logging
 from pathlib import Path
 
-import requests
-
 from config.loader import Settings, load_profiles
 import ingest
 import analysis
@@ -43,19 +41,13 @@ MARKET = [
 ]
 
 
-def _serie(sym: str) -> list[float]:
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?range=1mo&interval=1d"
-    r = requests.get(url, headers={"User-Agent": "GeoIntelMonitor/0.1"}, timeout=20)
-    r.raise_for_status()
-    res = r.json()["chart"]["result"][0]
-    return [round(c, 4) for c in res["indicators"]["quote"][0]["close"] if c is not None]
-
-
 def fetch_market() -> list[dict]:
+    """Usa market.quotes.fetch_series (retry + isfinite). Ignora símbolo que falha."""
+    from market.quotes import fetch_series
     out = []
     for m in MARKET:
         try:
-            s = _serie(m["sym"])
+            s = fetch_series(m["sym"])
             if len(s) < 2:
                 continue
             out.append({
@@ -101,10 +93,12 @@ def build_data(top_n: int) -> dict:
         })
 
     from datetime import datetime, timezone
+    market = fetch_market()
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "profiles": profiles_out,
-        "market": fetch_market(),
+        "market": market,
+        "market_error": len(market) == 0,
     }
 
 

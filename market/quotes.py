@@ -6,6 +6,8 @@ símbolos e devolve {nome, valor, variacao_pct, fonte}. Tolera símbolo fora do 
 from __future__ import annotations
 
 import logging
+import math
+import time
 from dataclasses import dataclass
 
 import requests
@@ -14,6 +16,27 @@ log = logging.getLogger("market")
 
 YAHOO = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
 _UA = "GeoIntelMonitor/0.1 (+https://example.com)"
+
+
+def _get_json(url: str, timeout: int = 15, retries: int = 3) -> dict:
+    """GET com retry e backoff exponencial (0.5s, 1s, 2s)."""
+    erro = None
+    for tentativa in range(retries):
+        try:
+            r = requests.get(url, headers={"User-Agent": _UA}, timeout=timeout)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:  # rede/HTTP/JSON
+            erro = e
+            if tentativa < retries - 1:
+                time.sleep(0.5 * (2 ** tentativa))
+    raise erro if erro else RuntimeError("falha desconhecida")
+
+
+def _closes(meta_result: dict) -> list[float]:
+    """Extrai fechamentos finitos (descarta None/NaN/inf)."""
+    q = meta_result["indicators"]["quote"][0]["close"]
+    return [round(c, 4) for c in q if c is not None and math.isfinite(c)]
 
 # Marcadores padrão (nome legível -> símbolo Yahoo). Configurável.
 PADRAO: dict[str, str] = {
@@ -41,16 +64,22 @@ class MarketQuote:
         return f"{self.nome}: {v} ({self.variacao_pct:+.2f}%)"
 
 
+def fetch_series(simbolo: str, intervalo: str = "1mo", timeout: int = 15) -> list[float]:
+    """Série de fechamentos (finitos) do período. Levanta em falha total."""
+    url = YAHOO.format(symbol=simbolo) + f"?range={intervalo}&interval=1d"
+    data = _get_json(url, timeout=timeout)
+    return _closes(data["chart"]["result"][0])
+
+
 def fetch_quote(nome: str, simbolo: str, timeout: int = 15) -> MarketQuote | None:
     try:
-        resp = requests.get(YAHOO.format(symbol=simbolo), headers={"User-Agent": _UA}, timeout=timeout)
-        resp.raise_for_status()
-        meta = resp.json()["chart"]["result"][0]["meta"]
+        data = _get_json(YAHOO.format(symbol=simbolo), timeout=timeout)
+        meta = data["chart"]["result"][0]["meta"]
         preco = meta.get("regularMarketPrice")
         ant = meta.get("chartPreviousClose") or meta.get("previousClose")
-        if preco is None:
+        if preco is None or not math.isfinite(preco):
             return None
-        var = ((preco - ant) / ant * 100) if ant else None
+        var = ((preco - ant) / ant * 100) if (ant and math.isfinite(ant)) else None
         return MarketQuote(nome=nome, simbolo=simbolo, valor=float(preco),
                            variacao_pct=round(var, 2) if var is not None else None)
     except Exception as e:
