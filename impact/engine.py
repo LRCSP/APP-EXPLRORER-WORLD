@@ -21,6 +21,7 @@ from config.loader import Settings
 from config.editorias import rotulo
 from ingest.schema import Evento
 from impact.models import Briefing, EventoBriefing
+from analysis.validators import validate_impact_block, clamp_severidade, clamp_relevancia
 
 log = logging.getLogger("impact")
 
@@ -230,10 +231,11 @@ def _blocos_api(brain, ev: Evento, idiomas: list[str], lente: dict | None = None
     out: dict[str, dict] = {}
     for lang in idiomas:
         d = dados.get(lang, {}) if isinstance(dados, dict) else {}
-        bloco = {c: str(d.get(c, "")).strip() for c in CAMPOS}
-        bloco["titulo"] = str(d.get("titulo", "")).strip()
-        bloco["resumo"] = str(d.get("resumo", "")).strip()
-        out[lang] = bloco
+        bruto = {**{c: d.get(c) for c in CAMPOS}, "titulo": d.get("titulo"), "resumo": d.get("resumo")}
+        limpo, faltando = validate_impact_block(bruto)
+        if faltando:
+            log.warning("impacto[%s] campos ausentes: %s", lang, faltando)
+        out[lang] = limpo
     return out
 
 
@@ -272,8 +274,9 @@ def montar_briefings(
         if use_api:
             try:
                 blocos = _blocos_api(brain, ev, idiomas, lente)
-                if not any(any(b.values()) for b in blocos.values()):
-                    raise ValueError("resposta vazia")
+                # Precisa de impacto real em ao menos um idioma; senão, DEMO.
+                if not any(b.get("impacto_custo") or b.get("acao_recomendada") for b in blocos.values()):
+                    raise ValueError("resposta sem impacto")
             except Exception as e:
                 log.warning("impacto API falhou para '%s' (%s); DEMO aplicado", ev.titulo[:40], e)
                 blocos = {lang: _bloco_demo(ev, lang) for lang in idiomas}
@@ -294,8 +297,8 @@ def montar_briefings(
                     data=ev.data,
                     setor=setor,
                     geografia=ev.extra.get("geografia", "Global"),
-                    severidade=int(ev.extra.get("severidade", 1)),
-                    relevancia=int(ev.extra.get("relevancia", 1)),
+                    severidade=clamp_severidade(ev.extra.get("severidade", 1)),
+                    relevancia=clamp_relevancia(ev.extra.get("relevancia", 1)),
                     impacto_custo=bloco["impacto_custo"],
                     impacto_cadeia=bloco["impacto_cadeia"],
                     exposicao_cyber=bloco["exposicao_cyber"],

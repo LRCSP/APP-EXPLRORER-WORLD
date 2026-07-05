@@ -20,6 +20,7 @@ import re
 
 from config.loader import Settings
 from ingest.schema import Evento
+from analysis.validators import validate_classification, clamp_severidade, clamp_relevancia
 
 log = logging.getLogger("analysis")
 
@@ -74,8 +75,8 @@ def _heuristica(ev: Evento) -> dict:
     return {
         "setor": ev.setor,
         "geografia": geografia,
-        "severidade": int(severidade),
-        "relevancia": int(relevancia),
+        "severidade": clamp_severidade(severidade),
+        "relevancia": clamp_relevancia(relevancia),
         # Sem chave não há tradução real: mantém o original nos dois idiomas.
         "titulo_i18n": {"pt": ev.titulo, "en": ev.titulo},
         "_modo": "demo",
@@ -149,18 +150,11 @@ def run(eventos: list[Evento], settings: Settings | None = None, batch_size: int
                 dados = _classifica_lote_api(brain, lote)
                 por_id = {d.get("id"): d for d in dados if isinstance(d, dict)}
                 for i, ev in enumerate(lote):
-                    d = por_id.get(i, {})
-                    ev.extra.update({
-                        "setor": d.get("setor", ev.setor),
-                        "geografia": d.get("geografia", "Global"),
-                        "severidade": int(d.get("severidade", 1) or 1),
-                        "relevancia": int(d.get("relevancia", 1) or 1),
-                        "titulo_i18n": {
-                            "pt": d.get("titulo_pt") or ev.titulo,
-                            "en": d.get("titulo_en") or ev.titulo,
-                        },
-                        "_modo": "api",
-                    })
+                    campos, avisos = validate_classification(por_id.get(i, {}), ev, SETORES)
+                    for a in avisos:
+                        log.warning("evento '%s': %s", ev.titulo[:40], a)
+                    campos["_modo"] = "api"
+                    ev.extra.update(campos)
             except Exception as e:  # erro de parse/rede -> heurística no lote
                 log.warning("lote %d falhou na API (%s); heurística aplicada", inicio // batch_size, e)
                 for ev in lote:
