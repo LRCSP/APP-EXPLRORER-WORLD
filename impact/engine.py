@@ -26,9 +26,14 @@ from analysis.validators import validate_impact_block, clamp_severidade, clamp_r
 log = logging.getLogger("impact")
 
 SYSTEM_PROMPT = (
-    "Você é um analista que traduz eventos geopolíticos em impacto operacional "
-    "para donos de empresa. Tom direto, analítico, sem retórica vazia. "
-    "Cada campo deve ter 1-2 frases acionáveis. Responda APENAS com JSON válido."
+    "Você é um analista de IA que traduz eventos de economia, mercado, política, "
+    "comércio exterior, energia e tecnologia em impacto e cenário para pequenos "
+    "negócios, MEIs, PMEs e investidores no Brasil. Tom direto, analítico, sem "
+    "retórica vazia. Cada campo tem 1-2 frases acionáveis. "
+    "REGRAS OBRIGATÓRIAS: nunca recomende comprar ou vender ativos específicos "
+    "(não use 'compre' nem 'venda'); projeção é cenário PROVÁVEL, não garantia "
+    "(não prometa previsão perfeita); não faça valuation nem due diligence. "
+    "Responda APENAS com JSON válido."
 )
 
 CAMPOS = ["impacto_custo", "impacto_cadeia", "exposicao_cyber", "acao_recomendada"]
@@ -185,6 +190,9 @@ def _bloco_demo(ev: Evento, lang: str) -> dict:
     # DEMO não traduz de verdade: usa título/resumo originais.
     base["titulo"] = ev.extra.get("titulo_i18n", {}).get(lang) or ev.titulo
     base["resumo"] = (ev.texto_bruto or ev.titulo)[:400]
+    base["projecao"] = ("Cenário provável nos próximos dias, a depender da evolução do tema."
+                        if lang == "pt" else
+                        "Likely scenario in the coming days, depending on how the topic evolves.")
     return base
 
 
@@ -219,11 +227,12 @@ def _blocos_api(brain, ev: Evento, idiomas: list[str], lente: dict | None = None
         '  "titulo": tradução CONTEXTUAL (não literal) do título;\n'
         '  "resumo": 1-2 frases adaptando o resumo, explicando termos locais quando '
         'necessário (ex.: "Selic" em inglês -> "Selic, Brazil\'s benchmark interest rate");\n'
+        '  "projecao": cenário PROVÁVEL nos próximos dias/semanas (não é garantia);\n'
         '  "impacto_custo", "impacto_cadeia", "exposicao_cyber", "acao_recomendada".\n'
         "Se a fonte estiver em outro idioma, traduza/adapte mantendo o sentido. "
         f"{lente_txt}"
         "Responda APENAS com JSON no formato:\n"
-        '{"<idioma>": {"titulo":"...","resumo":"...","impacto_custo":"...",'
+        '{"<idioma>": {"titulo":"...","resumo":"...","projecao":"...","impacto_custo":"...",'
         '"impacto_cadeia":"...","exposicao_cyber":"...","acao_recomendada":"..."}}'
     )
     texto = brain.complete(SYSTEM_PROMPT, prompt, max_tokens=1200, json=True)
@@ -231,7 +240,8 @@ def _blocos_api(brain, ev: Evento, idiomas: list[str], lente: dict | None = None
     out: dict[str, dict] = {}
     for lang in idiomas:
         d = dados.get(lang, {}) if isinstance(dados, dict) else {}
-        bruto = {**{c: d.get(c) for c in CAMPOS}, "titulo": d.get("titulo"), "resumo": d.get("resumo")}
+        bruto = {**{c: d.get(c) for c in CAMPOS}, "titulo": d.get("titulo"),
+                 "resumo": d.get("resumo"), "projecao": d.get("projecao")}
         limpo, faltando = validate_impact_block(bruto)
         if faltando:
             log.warning("impacto[%s] campos ausentes: %s", lang, faltando)
@@ -303,6 +313,7 @@ def montar_briefings(
                     impacto_cadeia=bloco["impacto_cadeia"],
                     exposicao_cyber=bloco["exposicao_cyber"],
                     acao_recomendada=bloco["acao_recomendada"],
+                    projecao=bloco.get("projecao", ""),
                     resumo=resumo,
                     idioma_original=ev.idioma_original,
                     titulo_original=ev.titulo,

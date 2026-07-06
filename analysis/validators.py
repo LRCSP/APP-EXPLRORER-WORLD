@@ -90,6 +90,7 @@ def validate_impact_block(bloco: dict) -> tuple[dict, list[str]]:
     limpo = {c: texto(bloco.get(c)) for c in CAMPOS_IMPACTO}
     limpo["titulo"] = texto(bloco.get("titulo"))
     limpo["resumo"] = texto(bloco.get("resumo"))
+    limpo["projecao"] = texto(bloco.get("projecao"))
 
     faltando = [c for c in CAMPOS_IMPACTO if not limpo[c]]
     if len(faltando) == len(CAMPOS_IMPACTO):

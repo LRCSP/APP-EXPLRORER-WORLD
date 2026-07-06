@@ -49,6 +49,10 @@ def write(briefing: Briefing, path: str | Path = "out/briefing.docx") -> Path:
 
             if getattr(ev, "resumo", ""):
                 doc.add_paragraph(ev.resumo)
+            if getattr(ev, "projecao", ""):
+                pj = doc.add_paragraph()
+                pj.add_run("Cenário provável: ").bold = True
+                pj.add_run(ev.projecao)
 
             for label, valor in (
                 ("Impacto no custo", ev.impacto_custo),

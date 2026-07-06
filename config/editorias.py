@@ -14,7 +14,7 @@ EDITORIAS: dict[str, dict[str, str]] = {
     "fertilizantes": {"pt": "Fertilizantes",          "en": "Fertilizers"},
     "alimentos":     {"pt": "Alimentos",              "en": "Food"},
     "insumos":       {"pt": "Insumos",                "en": "Raw Materials"},
-    "exportacoes":   {"pt": "Comércio Global",        "en": "Global Trade"},
+    "exportacoes":   {"pt": "Comércio Exterior",      "en": "Foreign Trade"},
     "economia":      {"pt": "Economia",               "en": "Economy"},
     "geopolitica":   {"pt": "Geopolítica",            "en": "Geopolitics"},
 }

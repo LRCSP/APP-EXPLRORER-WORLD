@@ -36,6 +36,8 @@ def _bloco_evento(ev, idx: int) -> str:
     ]
     if getattr(ev, "resumo", ""):
         linhas.append(f"📝 {_esc(ev.resumo)}")
+    if getattr(ev, "projecao", ""):
+        linhas.append(f"🔮 <b>Cenário:</b> {_esc(ev.projecao)}")
     linhas += [
         f"💰 <b>Custo:</b> {_esc(ev.impacto_custo)}",
         f"🔗 <b>Cadeia:</b> {_esc(ev.impacto_cadeia)}",

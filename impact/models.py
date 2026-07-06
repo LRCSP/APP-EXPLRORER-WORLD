@@ -28,6 +28,8 @@ class EventoBriefing:
     impacto_cadeia: str
     exposicao_cyber: str
     acao_recomendada: str
+    # --- Mesa do Analista: projeção (cenário provável, NÃO é garantia) ---
+    projecao: str = ""
     # --- camada de idioma / preservação do original ---
     resumo: str = ""             # resumo/adaptação contextual no idioma do briefing
     idioma_original: str = "en"  # idioma da fonte

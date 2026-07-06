@@ -61,7 +61,7 @@ def fetch_market() -> list[dict]:
 
 def _ev_dict(e) -> dict:
     return {
-        "titulo": e.titulo, "resumo": e.resumo, "editoria": e.editoria,
+        "titulo": e.titulo, "resumo": e.resumo, "projecao": e.projecao, "editoria": e.editoria,
         "geografia": e.geografia, "severidade": e.severidade, "relevancia": e.relevancia,
         "impacto_custo": e.impacto_custo, "impacto_cadeia": e.impacto_cadeia,
         "exposicao_cyber": e.exposicao_cyber, "acao_recomendada": e.acao_recomendada,
