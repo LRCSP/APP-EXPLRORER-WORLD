@@ -4,10 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" />
-<title>GEO·INTEL — Alerta diário de risco operacional para logística e comércio exterior</title>
-<meta name="description" content="Briefing diário bilíngue (PT/EN) de risco operacional e geopolítico para logística e comércio exterior: combustível, frete, rotas, prazos, fornecedores e margem — com fonte original e ação recomendada." />
-<meta property="og:title" content="GEO·INTEL — risco operacional diário para logística e comex" />
-<meta property="og:description" content="Os eventos globais do dia que afetam sua operação, classificados por severidade e traduzidos em ação. PT/EN, fonte original preservada." />
+<title>GEO·INTEL — Analista IA de mercado, risco e tecnologia para PMEs</title>
+<meta name="description" content="Analista IA para pequenas e médias empresas: sinais de mercado, câmbio, commodities e tecnologia viram projeção, impacto e caminho de ação. Bilíngue PT/EN, por menos de R$30/mês." />
+<meta property="og:title" content="GEO·INTEL — Analista IA para a sua empresa" />
+<meta property="og:description" content="Sinais do mercado viram projeções e ações para a sua PME. Mercado, risco e tecnologia o dia todo, por menos de R$30/mês." />
 <meta property="og:type" content="website" />
 <meta name="robots" content="index,follow" />
 <style>
@@ -212,19 +212,19 @@ const DATA = DATA_PLACEHOLDER;
 const CTA = DATA.cta || {signup:"#", whatsapp:"#"};
 const I18N = {
   pt:{
-    cta_free:"Receber 5 dias grátis", cta_today:"Ver briefing de hoje", cta_wpp:"Falar no WhatsApp",
-    kicker:"Risco operacional · logística & comércio exterior",
-    h1:'Alerta diário de risco para <span>logística e comércio exterior</span>.',
-    sub:"Todo dia, antes da operação começar: os eventos globais que podem afetar combustível, frete, rotas, prazos, fornecedores e margem — com fonte original e ação recomendada.",
-    pq_eyebrow:"Para quem é", pq_h:"Feito para quem move o comércio.",
-    audience:[["🚚","Transportadoras","Frete, diesel, rotas e prazos."],["🚢","Freight forwarders","Rotas marítimas, portos e congestionamentos."],["📦","Importadores / Exportadores","Sanções, tarifas e disponibilidade de insumos."],["🧾","Compras / Comex","Fornecedores, câmbio e risco de fornecimento."]],
-    como_eyebrow:"Como funciona", como_h:"Da fonte à ação, todo dia.",
-    steps:[["Fontes globais","Oficiais, imprensa e mercado, PT e EN."],["IA classifica","Setor, geografia e severidade, sem repetição."],["Impacto por perfil","Custo, cadeia, risco e ação recomendada."],["Entrega diária","Antes da operação — e-mail e WhatsApp/Telegram."]],
+    cta_free:"Testar 7 dias grátis", cta_today:"Ver análise de hoje", cta_wpp:"Falar no WhatsApp",
+    kicker:"Analista IA · mercado, risco & tecnologia",
+    h1:'Um analista IA acompanhando <span>mercado, risco e tecnologia</span> para a sua empresa.',
+    sub:"O dia todo, por menos de R$30/mês: sinais de mercado, câmbio, commodities e tecnologia viram projeção, impacto e caminho de ação para a sua PME.",
+    pq_eyebrow:"Para quem é", pq_h:"Feito para pequenas e médias empresas.",
+    audience:[["🏪","Comércio & varejo","Câmbio, consumo e custo de estoque."],["🏭","Indústria & agro","Insumos, commodities e energia."],["🚚","Logística & comex","Frete, rotas, sanções e tarifas."],["💼","Serviços & tech","Regulatório, tecnologia e concorrência."]],
+    como_eyebrow:"Como funciona", como_h:"Do sinal à ação, todo dia.",
+    steps:[["Sinais globais","Mercado, câmbio, commodities, tech — PT e EN."],["IA interpreta","Setor, geografia e severidade, sem repetição."],["Projeção & ação","Cenário provável, impacto e caminho de ação."],["Entrega no dia","Nos horários-chave — e-mail e WhatsApp/Telegram."]],
     brief_eyebrow:"Briefing do dia · amostra", brief_h:"Escolha o seu perfil.",
     brief_lead:"O mesmo dia, lido sob a ótica de quem decide. Fonte original sempre preservada.",
     mkt_eyebrow:"Mercado · 30 dias", mkt_h:"Câmbio, índices e commodities.",
-    beta_eyebrow:"Beta fundador", beta_h:"Preço de fundador, por tempo limitado.",
-    beta_p1:"R$149/mês", beta_p1b:"por empresa (até 3 destinatários)", beta_p2:"ou R$399/trimestre · 5 dias grátis para testar.",
+    beta_eyebrow:"Beta fundador", beta_h:"Menos de R$30/mês.",
+    beta_p1:"R$29,90/mês", beta_p1b:"· R$19,90 no beta fundador", beta_p2:"7 dias grátis para testar. Cancele quando quiser.",
     hist_eyebrow:"Histórico", hist_h:"Edições anteriores.",
     custo:"Custo", cadeia:"Cadeia", cyber:"Segurança", acao:"Ação",
     fonte:"fonte", ler:"abrir ↗", sev:"sev", detalhes:"Ver detalhes e fonte",
@@ -233,19 +233,19 @@ const I18N = {
     disc_text:"Conteúdo informativo, não é recomendação financeira nem jurídica. Fontes originais preservadas e sempre citadas.",
     footer:"GEO·INTEL — briefing bilíngue por perfil. Beta fundador; login e entrega diária nas próximas etapas."},
   en:{
-    cta_free:"Get 5 days free", cta_today:"See today's briefing", cta_wpp:"Chat on WhatsApp",
-    kicker:"Operational risk · logistics & foreign trade",
-    h1:'Daily risk alert for <span>logistics and foreign trade</span>.',
-    sub:"Every day, before operations start: the global events that can affect fuel, freight, routes, lead times, suppliers and margin — with original source and recommended action.",
-    pq_eyebrow:"Who it's for", pq_h:"Built for those who move trade.",
-    audience:[["🚚","Carriers","Freight, diesel, routes and lead times."],["🚢","Freight forwarders","Ocean routes, ports and congestion."],["📦","Importers / Exporters","Sanctions, tariffs and input availability."],["🧾","Procurement / Trade","Suppliers, FX and supply risk."]],
-    como_eyebrow:"How it works", como_h:"From source to action, every day.",
-    steps:[["Global sources","Official, press and markets, PT and EN."],["AI classifies","Sector, geography and severity, no repetition."],["Impact by profile","Cost, chain, risk and recommended action."],["Daily delivery","Before operations — email and WhatsApp/Telegram."]],
+    cta_free:"Start 7-day free trial", cta_today:"See today's analysis", cta_wpp:"Chat on WhatsApp",
+    kicker:"AI analyst · markets, risk & technology",
+    h1:'An AI analyst tracking <span>markets, risk and technology</span> for your business.',
+    sub:"All day, for under R$30/month: signals from markets, FX, commodities and technology become projection, impact and an action path for your SME.",
+    pq_eyebrow:"Who it's for", pq_h:"Built for small and medium businesses.",
+    audience:[["🏪","Retail & commerce","FX, demand and inventory cost."],["🏭","Industry & agri","Inputs, commodities and energy."],["🚚","Logistics & trade","Freight, routes, sanctions and tariffs."],["💼","Services & tech","Regulation, technology and competition."]],
+    como_eyebrow:"How it works", como_h:"From signal to action, every day.",
+    steps:[["Global signals","Markets, FX, commodities, tech — PT and EN."],["AI interprets","Sector, geography and severity, no repetition."],["Projection & action","Likely scenario, impact and action path."],["Delivered on the day","At key hours — email and WhatsApp/Telegram."]],
     brief_eyebrow:"Today's briefing · sample", brief_h:"Choose your profile.",
     brief_lead:"The same day, read through a decision-maker's lens. Original source always preserved.",
     mkt_eyebrow:"Markets · 30 days", mkt_h:"FX, indices and commodities.",
-    beta_eyebrow:"Founder beta", beta_h:"Founder pricing, limited time.",
-    beta_p1:"R$149/mo", beta_p1b:"per company (up to 3 recipients)", beta_p2:"or R$399/quarter · 5-day free trial.",
+    beta_eyebrow:"Founder beta", beta_h:"Under R$30/month.",
+    beta_p1:"R$29.90/mo", beta_p1b:"· R$19.90 in founder beta", beta_p2:"7-day free trial. Cancel anytime.",
     hist_eyebrow:"History", hist_h:"Previous editions.",
     custo:"Cost", cadeia:"Supply", cyber:"Security", acao:"Action",
     fonte:"source", ler:"open ↗", sev:"sev", detalhes:"See details and source",
