@@ -55,6 +55,22 @@
   .radar{margin:10px auto 0;max-width:520px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}
   .radar .w{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-variant-numeric:tabular-nums}
   .radar .w.on{color:var(--accent);border-color:var(--accent);font-weight:700}
+  #globe{cursor:default} #globe.hot{cursor:pointer}
+  .regions{margin:12px auto 0;max-width:520px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .regions .rg{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700}
+  .regions .rg .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .regions .rg.on{color:var(--txt);border-color:var(--accent)}
+  .regions .rg.clear{color:var(--accent);border-style:dashed}
+  .exs{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin-top:28px}
+  .exc{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .exc .ic{font-size:24px}
+  .exc .sig{font-weight:800;font-size:17px;margin:8px 0 12px}
+  .exc .fl .row{display:flex;gap:10px;font-size:14px;margin:8px 0;align-items:baseline}
+  .exc .fl .k{color:var(--accent);font-weight:700;min-width:70px;flex-shrink:0}
+  .exc .fl .v{color:var(--muted)}
+  .exc .fl .v.act{color:var(--txt)}
+  .ev.dim{opacity:.32;filter:saturate(.4)}
+  .emptyreg{grid-column:1/-1;background:var(--panel);border:1px dashed var(--line);border-radius:14px;padding:18px;color:var(--muted);font-size:14px;text-align:center}
   section.block{padding:88px 0;border-top:1px solid var(--line);position:relative}
   .eyebrow{color:var(--accent);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
   .block h2{font-size:clamp(23px,3vw,38px);font-weight:800;letter-spacing:-.5px;max-width:780px}
@@ -152,8 +168,9 @@
       </div>
     </div>
     <div>
-      <canvas id="globe" width="1040" height="1040" aria-hidden="true"></canvas>
+      <canvas id="globe" width="1040" height="1040" role="img" aria-label="Globo interativo de sinais por região / Interactive globe of signals by region"></canvas>
       <div class="radar" id="radar" aria-hidden="true"></div>
+      <div class="regions" id="regions" role="group" aria-label="Filtrar por região / Filter by region"></div>
     </div>
   </div>
 </div>
@@ -171,6 +188,15 @@
     <div class="eyebrow" data-i="como_eyebrow"></div>
     <h2 data-i="como_h"></h2>
     <div class="steps" id="steps"></div>
+  </div>
+</section>
+
+<section class="block" id="exemplos">
+  <div class="wrap">
+    <div class="eyebrow" data-i="ex_eyebrow"></div>
+    <h2 data-i="ex_h"></h2>
+    <p class="lead" data-i="ex_lead"></p>
+    <div class="exs" id="examples"></div>
   </div>
 </section>
 
@@ -228,6 +254,18 @@ const I18N = {
     audience:[["🧾","Pequenos negócios & MEIs","Custo, caixa e consumo."],["📦","PMEs com estoque / importações","Fornecedores, câmbio e insumos."],["📈","Investidores de bolsa","Contexto de mercado e risco."],["🤝","Anjos & compra de participação","Risco, oportunidade e cenário."],["🧭","Carteira de negócios","Estabilidade e visão de futuro."]],
     como_eyebrow:"Como funciona", como_h:"Do sinal à ação, todo dia.",
     steps:[["Sinais globais","Mercado, câmbio, commodities, tech — PT e EN."],["IA interpreta","Setor, geografia e severidade, sem repetição."],["Projeção & ação","Cenário provável, impacto e caminho de ação."],["Entrega no dia","Nos horários-chave — e-mail e WhatsApp/Telegram."]],
+    ex_eyebrow:"Exemplos concretos", ex_h:"O que muda no seu dia quando o mundo se move.",
+    ex_lead:"Cada sinal vira impacto e caminho de ação — sem promessa de previsão perfeita, sem dizer o que comprar ou vender.",
+    examples:[
+      ["💵","Dólar sobe","Importação e insumos ficam mais caros — sua margem aperta.","Reveja preços, trave o câmbio das compras e priorize o estoque crítico."],
+      ["🏛️","Crise política","Bolsa oscila e o câmbio dispara — o risco de curto prazo aumenta.","Evite decisões precipitadas; proteja o caixa e reavalie sua exposição."],
+      ["🌍","Conflito global","Logística e combustível encarecem; o comércio exterior trava.","Diversifique rotas e fornecedores e antecipe pedidos sensíveis."],
+      ["⚙️","Regulação ou nova tecnologia","Seu setor muda — vira risco para uns e oportunidade para outros.","Mapeie o impacto no seu nicho e teste um movimento pequeno."],
+      ["📉","Juros ou inflação em alta","O consumo esfria e o caixa fica mais curto.","Reforce o capital de giro e revise prazos de pagamento e recebimento."],
+      ["🧭","Evento setorial relevante","Sua carteira de negócios ganha ou perde valor conforme o setor.","Reequilibre a carteira olhando estabilidade e futuro."]],
+    ex_sinal:"Sinal", ex_impacto:"Impacto",
+    reg_label:"Região", reg_all:"Todas as regiões", reg_empty:"Sem sinais desta região na amostra de hoje — veja todos.",
+    regions:{BR:"Brasil",US:"EUA",EU:"Europa",CN:"China",RU:"Rússia",ME:"Oriente Médio",AS:"Ásia-Pacífico"},
     brief_eyebrow:"Briefing do dia · amostra", brief_h:"Escolha o seu perfil.",
     brief_lead:"Mesa do Analista: cada sinal vira interpretação → projeção → impacto → caminho de ação, sob a ótica do seu perfil. Fonte original sempre preservada.",
     mkt_eyebrow:"Mercado · 30 dias", mkt_h:"Câmbio, índices e commodities.",
@@ -250,6 +288,18 @@ const I18N = {
     audience:[["🧾","Small business & MEIs","Cost, cash and demand."],["📦","SMEs with stock / imports","Suppliers, FX and inputs."],["📈","Equity investors","Market context and risk."],["🤝","Angels & stake buyers","Risk, opportunity and scenario."],["🧭","Business portfolio","Stability and future outlook."]],
     como_eyebrow:"How it works", como_h:"From signal to action, every day.",
     steps:[["Global signals","Markets, FX, commodities, tech — PT and EN."],["AI interprets","Sector, geography and severity, no repetition."],["Projection & action","Likely scenario, impact and action path."],["Delivered on the day","At key hours — email and WhatsApp/Telegram."]],
+    ex_eyebrow:"Concrete examples", ex_h:"What changes in your day when the world moves.",
+    ex_lead:"Each signal becomes impact and an action path — no promise of perfect forecasts, no telling you what to buy or sell.",
+    examples:[
+      ["💵","Dollar rises","Imports and inputs get pricier — your margin tightens.","Review prices, hedge purchase FX and prioritize critical stock."],
+      ["🏛️","Political crisis","Equities swing and FX spikes — short-term risk climbs.","Avoid rushed calls; protect cash and reassess your exposure."],
+      ["🌍","Global conflict","Logistics and fuel get costlier; foreign trade stalls.","Diversify routes and suppliers and front-load sensitive orders."],
+      ["⚙️","Regulation or new tech","Your sector shifts — risk for some, opportunity for others.","Map the impact on your niche and test a small move."],
+      ["📉","Rising rates or inflation","Demand cools and cash runs shorter.","Strengthen working capital and revisit payment and receipt terms."],
+      ["🧭","Major sector event","Your business portfolio gains or loses with the sector.","Rebalance the portfolio for stability and future outlook."]],
+    ex_sinal:"Signal", ex_impacto:"Impact",
+    reg_label:"Region", reg_all:"All regions", reg_empty:"No signals from this region in today's sample — see all.",
+    regions:{BR:"Brazil",US:"USA",EU:"Europe",CN:"China",RU:"Russia",ME:"Middle East",AS:"Asia-Pacific"},
     brief_eyebrow:"Today's briefing · sample", brief_h:"Choose your profile.",
     brief_lead:"Analyst desk: each signal becomes interpretation → projection → impact → action path, through your profile's lens. Original source always preserved.",
     mkt_eyebrow:"Markets · 30 days", mkt_h:"FX, indices and commodities.",
@@ -265,7 +315,18 @@ const I18N = {
     footer:"GEO·INTEL — AI analyst by profile. Founder beta; login and daily delivery next."},
 };
 
-let LANG="pt", PROFILE=(DATA.profiles[0]||{}).id;
+let LANG="pt", PROFILE=(DATA.profiles[0]||{}).id, FILTER_REGION=null;
+const REGION_ALIASES={
+  BR:["bras","brazil","sao paulo","brasilia","santos","rio de janeiro"],
+  US:["eua","estados unidos","usa","u.s","united states","washington","nova york","new york","houston","san francisco","silicon","california"],
+  EU:["europ","uniao europeia","european union","londres","london","reino unido","united kingdom"," uk ","alemanha","germany","franca","france","roterda","rotterdam","zona do euro","euro area","bruxelas","brussels"],
+  CN:["china","chines","chinese","pequim","beijing","xangai","shanghai","hong kong"],
+  RU:["russia","russo","russa","moscou","moscow","kremlin"],
+  ME:["oriente medio","middle east","israel","ira","iran","arabia","saudi","riade","riyadh","suez","golfo","gulf","opep","opec","catar","qatar","emirados"],
+  AS:["asia","asiat","japao","japan","toquio","tokyo","india","indiano","bangalore","coreia","korea","taiwan","singapura","singapore"],
+};
+const _norm=s=>(s==null?"":String(s)).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function evRegion(e){const g=_norm(e.geografia);for(const k in REGION_ALIASES){if(REGION_ALIASES[k].some(a=>g.includes(a.trim())))return k;}return null;}
 const root=document.documentElement, cssv=n=>getComputedStyle(root).getPropertyValue(n).trim();
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
 const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -300,9 +361,32 @@ function renderTop3(){
   const top=[...currentEvents()].sort((a,b)=>b.relevancia-a.relevancia).slice(0,3);
   box.innerHTML=`<h4>${esc(t.top3)}</h4><ol>${top.map(e=>`<li>${esc(e.titulo)} <small>· ${esc(e.editoria)} · ${t.sev} ${e.severidade}/5</small></li>`).join('')}</ol>`;
 }
+function renderExamples(){
+  const t=I18N[LANG];
+  fill('examples',t.examples,(el,[ic,sig,imp,act])=>{el.className='exc reveal in';
+    el.innerHTML=`<div class="ic">${ic}</div><div class="sig">${esc(sig)}</div>
+      <div class="fl">
+        <div class="row"><span class="k">${esc(t.ex_impacto)}</span><span class="v">${esc(imp)}</span></div>
+        <div class="row"><span class="k">✅ ${esc(t.acao)}</span><span class="v act">${esc(act)}</span></div>
+      </div>`;});
+}
+function regionsPresent(){const s=new Set();DATA.profiles.forEach(p=>Object.values(p.events||{}).forEach(list=>list.forEach(e=>{const r=evRegion(e);if(r)s.add(r);})));return s;}
+function renderRegions(){
+  const t=I18N[LANG],box=document.getElementById('regions');if(!box)return;box.innerHTML='';
+  const order=['BR','US','EU','CN','RU','ME','AS'],present=regionsPresent();
+  const mk=(key,label,cls,active,onClick)=>{const b=document.createElement('button');b.type='button';b.className='rg'+cls+(active?' on':'');
+    b.setAttribute('aria-pressed',String(active));b.innerHTML=key?`<span class="sw" style="background:${TH_REGION[key]||'var(--accent)'}"></span>${esc(label)}`:esc(label);b.onclick=onClick;box.appendChild(b);};
+  mk(null,`🌐 ${t.reg_all}`,' clear',!FILTER_REGION,()=>{FILTER_REGION=null;render();});
+  order.filter(k=>present.has(k)).forEach(k=>mk(k,t.regions[k]||k,'',FILTER_REGION===k,()=>{FILTER_REGION=(FILTER_REGION===k?null:k);render();}));
+}
 function renderEvents(){
   const t=I18N[LANG],box=document.getElementById('events');box.innerHTML='';
-  currentEvents().forEach(e=>{
+  let evs=currentEvents();
+  if(FILTER_REGION)evs=evs.filter(e=>evRegion(e)===FILTER_REGION);
+  if(FILTER_REGION&&!evs.length){const d=document.createElement('div');d.className='emptyreg';
+    d.innerHTML=`${esc(t.reg_empty)} <button type="button" class="rg clear" style="margin-left:8px">🌐 ${esc(t.reg_all)}</button>`;
+    d.querySelector('button').onclick=()=>{FILTER_REGION=null;render();};box.appendChild(d);return;}
+  evs.forEach(e=>{
     const el=document.createElement('article');el.className='ev reveal in';const idi=(e.idioma_original||'').toUpperCase();
     el.innerHTML=`<div class="h"><span class="tag">${esc(e.editoria)} · ${esc(e.geografia)}</span>
       <span class="sev" style="color:${SEVC(e.severidade)}">${t.sev} ${e.severidade}/5</span></div>
@@ -340,7 +424,7 @@ function renderRadar(){
   let near=0,best=1e9;mins.forEach((m,i)=>{const d=Math.abs(h-m);if(d<best){best=d;near=i;}});
   box.innerHTML=`<span>🛰️ ${esc(t.radar_label)}:</span>`+wins.map((w,i)=>`<span class="w${i===near?' on':''}">${w}</span>`).join('');
 }
-function render(){applyI18n();renderStatic();renderTabs();renderTop3();renderEvents();renderHist();renderMarket();renderRadar();}
+function render(){applyI18n();renderStatic();renderExamples();renderTabs();renderTop3();renderEvents();renderRegions();renderHist();renderMarket();renderRadar();}
 render();
 
 /* charts */
@@ -371,14 +455,21 @@ function pip(x,y,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i
 const land=[];for(let lat=-56;lat<=80;lat+=2.6)for(let lon=-180;lon<=180;lon+=2.6){for(const k of CONT){if(pip(lon,lat,k.p)){const la=lat*Math.PI/180,lo=lon*Math.PI/180;land.push({x:Math.cos(la)*Math.sin(lo),y:Math.sin(la),z:Math.cos(la)*Math.cos(lo),c:k.c});break;}}}
 function ll(lon,lat){const la=lat*Math.PI/180,lo=lon*Math.PI/180;return{x:Math.cos(la)*Math.sin(lo),y:Math.sin(la),z:Math.cos(la)*Math.cos(lo)};}
 const TH={pol:'#ffb443',geo:'#ff5d63',mkt:'#5aa2ff',ene:'#ff8a5b',log:'#37d39b',tec:'#8fd0ff'};
+const TH_REGION={BR:'#37d39b',US:'#5aa2ff',EU:'#8fd0ff',CN:'#ff5d63',RU:'#ff8a5b',ME:'#ffb443',AS:'#c58bff'};
 const POINTS=[
- {...ll(-47.9,-15.8),c:TH.pol},{...ll(-77,38.9),c:TH.pol},{...ll(37.6,55.7),c:TH.geo},{...ll(116.4,39.9),c:TH.geo},{...ll(35,31.8),c:TH.geo},
- {...ll(-74,40.7),c:TH.mkt},{...ll(-46.6,-23.5),c:TH.mkt},{...ll(-0.1,51.5),c:TH.mkt},{...ll(139.7,35.7),c:TH.mkt},
- {...ll(46.7,24.6),c:TH.ene},{...ll(-95.4,29.8),c:TH.ene},
- {...ll(4.5,51.9),c:TH.log},{...ll(121.5,31.2),c:TH.log},{...ll(-46.3,-23.9),c:TH.log},{...ll(32.5,30),c:TH.log},
- {...ll(-122.4,37.8),c:TH.tec},{...ll(77.6,13),c:TH.tec},
+ {...ll(-47.9,-15.8),c:TH.pol,r:'BR'},{...ll(-77,38.9),c:TH.pol,r:'US'},{...ll(37.6,55.7),c:TH.geo,r:'RU'},{...ll(116.4,39.9),c:TH.geo,r:'CN'},{...ll(35,31.8),c:TH.geo,r:'ME'},
+ {...ll(-74,40.7),c:TH.mkt,r:'US'},{...ll(-46.6,-23.5),c:TH.mkt,r:'BR'},{...ll(-0.1,51.5),c:TH.mkt,r:'EU'},{...ll(139.7,35.7),c:TH.mkt,r:'AS'},
+ {...ll(46.7,24.6),c:TH.ene,r:'ME'},{...ll(-95.4,29.8),c:TH.ene,r:'US'},
+ {...ll(4.5,51.9),c:TH.log,r:'EU'},{...ll(121.5,31.2),c:TH.log,r:'CN'},{...ll(-46.3,-23.9),c:TH.log,r:'BR'},{...ll(32.5,30),c:TH.log,r:'ME'},
+ {...ll(-122.4,37.8),c:TH.tec,r:'US'},{...ll(77.6,13),c:TH.tec,r:'AS'},
 ];
-const ARCS=[[ll(116.4,39.9),ll(-46.6,-23.5)],[ll(-77,38.9),ll(-47.9,-15.8)],[ll(121.5,31.2),ll(4.5,51.9)],[ll(46.7,24.6),ll(-95.4,29.8)],[ll(-122.4,37.8),ll(139.7,35.7)]];
+const ARCS=[
+ {a:ll(116.4,39.9),b:ll(-46.6,-23.5),ra:'CN',rb:'BR'},
+ {a:ll(-77,38.9),b:ll(-47.9,-15.8),ra:'US',rb:'BR'},
+ {a:ll(121.5,31.2),b:ll(4.5,51.9),ra:'CN',rb:'EU'},
+ {a:ll(46.7,24.6),b:ll(-95.4,29.8),ra:'ME',rb:'US'},
+ {a:ll(-122.4,37.8),b:ll(139.7,35.7),ra:'US',rb:'AS'},
+];
 const gl=document.getElementById('globe'),gx=gl.getContext('2d');let ang=-0.3,tg=0;
 function rotp(p,ca,sa){return{x:p.x*ca+p.z*sa,y:p.y,z:-p.x*sa+p.z*ca};}
 function drawGlobe(){const W=gl.width,H=gl.height,cx=W/2,cy=H/2,R=W*0.40;gx.clearRect(0,0,W,H);ang+=0.0022;const ca=Math.cos(ang),sa=Math.sin(ang);
@@ -386,16 +477,22 @@ function drawGlobe(){const W=gl.width,H=gl.height,cx=W/2,cy=H/2,R=W*0.40;gx.clea
   gx.strokeStyle=cssv('--globeline');gx.lineWidth=1;for(let m=-150;m<=180;m+=30){gx.beginPath();let s=false;for(let la=-90;la<=90;la+=4){const r=rotp({x:Math.cos(la*Math.PI/180)*Math.sin(m*Math.PI/180),y:Math.sin(la*Math.PI/180),z:Math.cos(la*Math.PI/180)*Math.cos(m*Math.PI/180)},ca,sa);if(r.z<0){s=false;continue;}const X=cx+r.x*R,Y=cy-r.y*R;s?gx.lineTo(X,Y):gx.moveTo(X,Y);s=true;}gx.stroke();}
   for(const p of land){const r=rotp(p,ca,sa);if(r.z<-0.02)continue;const d=(r.z+1)/2;gx.globalAlpha=.25+d*.75;gx.fillStyle=p.c;gx.beginPath();gx.arc(cx+r.x*R,cy-r.y*R,1.5*(.5+d),0,7);gx.fill();}gx.globalAlpha=1;
   tg+=0.05;
-  // arcos (linhas de evento entre regiões)
-  gx.lineWidth=1.1;gx.strokeStyle='rgba(90,162,255,.4)';
-  for(const [a,b] of ARCS){gx.beginPath();let st=false;
+  // arcos (linhas de evento entre regiões) — realça os da região filtrada
+  for(const A of ARCS){const hot=FILTER_REGION&&(A.ra===FILTER_REGION||A.rb===FILTER_REGION),dim=FILTER_REGION&&!hot;
+    gx.lineWidth=hot?2:1.1;gx.strokeStyle=hot?'rgba(120,190,255,.85)':(dim?'rgba(90,162,255,.12)':'rgba(90,162,255,.4)');
+    gx.beginPath();let st=false;const a=A.a,b=A.b;
     for(let s=0;s<=1.0001;s+=0.05){let x=a.x+(b.x-a.x)*s,y=a.y+(b.y-a.y)*s,z=a.z+(b.z-a.z)*s;const L=Math.hypot(x,y,z)||1;x/=L;y/=L;z/=L;const lift=1+0.16*Math.sin(Math.PI*s);const r=rotp({x:x*lift,y:y*lift,z:z*lift},ca,sa);if(r.z<-0.1){st=false;continue;}const X=cx+r.x*R,Y=cy-r.y*R;st?gx.lineTo(X,Y):gx.moveTo(X,Y);st=true;}gx.stroke();}
-  // pontos temáticos pulsando
+  // pontos temáticos pulsando (clicáveis por região)
   const pulse=(Math.sin(tg)+1)/2;
-  for(const p of POINTS){const r=rotp(p,ca,sa);if(r.z<0)continue;const X=cx+r.x*R,Y=cy-r.y*R;
-    gx.fillStyle=p.c;gx.globalAlpha=.95;gx.beginPath();gx.arc(X,Y,2.8,0,7);gx.fill();
-    gx.globalAlpha=.28*(1-pulse*.5);gx.beginPath();gx.arc(X,Y,4+pulse*10,0,7);gx.fill();gx.globalAlpha=1;}
+  for(const p of POINTS){const r=rotp(p,ca,sa);const X=cx+r.x*R,Y=cy-r.y*R;p._sx=X;p._sy=Y;p._vis=r.z>=0;if(r.z<0)continue;
+    const hot=!FILTER_REGION||p.r===FILTER_REGION;gx.fillStyle=p.c;gx.globalAlpha=hot?.95:.16;
+    gx.beginPath();gx.arc(X,Y,hot?3:2.4,0,7);gx.fill();
+    gx.globalAlpha=(hot?.28:.05)*(1-pulse*.5);gx.beginPath();gx.arc(X,Y,4+pulse*10,0,7);gx.fill();gx.globalAlpha=1;}
 }
+function _canvasXY(ev){const rect=gl.getBoundingClientRect();return{x:(ev.clientX-rect.left)*(gl.width/rect.width),y:(ev.clientY-rect.top)*(gl.height/rect.height)};}
+function _pointAt(mx,my){let best=null,bd=46*46;for(const p of POINTS){if(!p._vis)continue;const dx=p._sx-mx,dy=p._sy-my,d=dx*dx+dy*dy;if(d<bd){bd=d;best=p;}}return best;}
+gl.addEventListener('click',ev=>{const{x,y}=_canvasXY(ev);const p=_pointAt(x,y);if(p){FILTER_REGION=(FILTER_REGION===p.r?null:p.r);render();}});
+gl.addEventListener('mousemove',ev=>{const{x,y}=_canvasXY(ev);gl.classList.toggle('hot',!!_pointAt(x,y));});
 const sky=document.getElementById('stars'),sxc=sky.getContext('2d');let stars=[];
 function initStars(){sky.width=innerWidth;sky.height=innerHeight;stars=[...Array(110)].map(()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.3+.2,s:Math.random()*.35+.05}));}
 initStars();addEventListener('resize',initStars);

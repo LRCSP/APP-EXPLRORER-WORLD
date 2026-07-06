@@ -149,16 +149,50 @@ def run_profiles(dry_run: bool = False) -> dict[str, dict]:
     return todos
 
 
+def parse_windows(janelas: list[str]) -> list[tuple[int, int]]:
+    """Converte ['08:15','13:00'] -> [(8,15),(13,0)], ignorando entradas inválidas."""
+    out: list[tuple[int, int]] = []
+    for w in janelas:
+        try:
+            hh, mm = str(w).split(":")
+            h, m = int(hh), int(mm)
+            if 0 <= h <= 23 and 0 <= m <= 59:
+                out.append((h, m))
+            else:
+                log.warning("Janela fora de faixa ignorada: %r", w)
+        except (ValueError, AttributeError):
+            log.warning("Janela inválida ignorada: %r", w)
+    return out
+
+
 def agendar() -> None:
-    """Agenda execuções recorrentes via APScheduler usando SCHEDULE_CRON."""
+    """Agenda execuções recorrentes via APScheduler.
+
+    Prioriza as janelas intraday (SCHEDULE_WINDOWS, ex. 08:15/13:00/17:30, seg-sex);
+    se nenhuma janela válida existir, cai no SCHEDULE_CRON.
+    """
     from apscheduler.schedulers.blocking import BlockingScheduler
     from apscheduler.triggers.cron import CronTrigger
 
     settings = Settings.from_env()
     sched = BlockingScheduler(timezone=settings.timezone)
-    trigger = CronTrigger.from_crontab(settings.schedule_cron, timezone=settings.timezone)
-    sched.add_job(lambda: run_pipeline(dry_run=False), trigger, id="briefing")
-    log.info("Agendado: '%s' (%s). Ctrl+C para sair.", settings.schedule_cron, settings.timezone)
+    janelas = parse_windows(settings.schedule_windows)
+
+    if janelas:
+        for h, m in janelas:
+            trigger = CronTrigger(
+                day_of_week="mon-fri", hour=h, minute=m, timezone=settings.timezone
+            )
+            sched.add_job(
+                lambda: run_pipeline(dry_run=False), trigger, id=f"briefing_{h:02d}{m:02d}"
+            )
+        horarios = ", ".join(f"{h:02d}:{m:02d}" for h, m in janelas)
+        log.info("Agendado intraday: %s (%s, seg-sex). Ctrl+C para sair.", horarios, settings.timezone)
+    else:
+        trigger = CronTrigger.from_crontab(settings.schedule_cron, timezone=settings.timezone)
+        sched.add_job(lambda: run_pipeline(dry_run=False), trigger, id="briefing")
+        log.info("Agendado: '%s' (%s). Ctrl+C para sair.", settings.schedule_cron, settings.timezone)
+
     try:
         sched.start()
     except (KeyboardInterrupt, SystemExit):

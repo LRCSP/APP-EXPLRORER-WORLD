@@ -134,6 +134,8 @@ class Settings:
     google_sheets_id: str | None = None
     google_sheets_worksheet: str = "Briefings"
     schedule_cron: str = "0 7 * * mon-fri"
+    # Janelas intraday (HH:MM, seg-sex). Se preenchidas, têm prioridade sobre o cron.
+    schedule_windows: list[str] = field(default_factory=lambda: ["08:15", "13:00", "17:30"])
     timezone: str = "America/Sao_Paulo"
     top_n_events: int = 10
     # Quantos eventos (pré-filtrados de graça) vão para a IA classificar.
@@ -162,6 +164,9 @@ class Settings:
             google_sheets_id=os.getenv("GOOGLE_SHEETS_ID"),
             google_sheets_worksheet=os.getenv("GOOGLE_SHEETS_WORKSHEET", "Briefings"),
             schedule_cron=os.getenv("SCHEDULE_CRON", "0 7 * * mon-fri"),
+            schedule_windows=[
+                w.strip() for w in os.getenv("SCHEDULE_WINDOWS", "08:15,13:00,17:30").split(",") if w.strip()
+            ] or ["08:15", "13:00", "17:30"],
             timezone=os.getenv("TIMEZONE", "America/Sao_Paulo"),
             top_n_events=int(os.getenv("TOP_N_EVENTS", "10")),
             ai_max_events=int(os.getenv("AI_MAX_EVENTS", "50")),
