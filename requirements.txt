@@ -1,0 +1,19 @@
+# --- Ingestão ---
+feedparser==6.0.11
+requests==2.32.3
+
+# --- Análise / Impacto (cérebro: Gemini OU Anthropic) ---
+google-genai==2.10.0
+anthropic==0.40.0
+
+# --- Entrega ---
+python-telegram-bot==21.6
+python-docx==1.1.2
+gspread==6.1.4
+# >=2.40.0: evita conflito de resolução com google-genai em instalação limpa
+google-auth>=2.40.0
+
+# --- Orquestração / Config ---
+APScheduler==3.10.4
+PyYAML==6.0.2
+python-dotenv==1.0.1
