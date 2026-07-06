@@ -4,10 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" />
-<title>GEO·INTEL — Analista IA de mercado, risco e tecnologia para PMEs</title>
-<meta name="description" content="Analista IA para pequenas e médias empresas: sinais de mercado, câmbio, commodities e tecnologia viram projeção, impacto e caminho de ação. Bilíngue PT/EN, por menos de R$30/mês." />
-<meta property="og:title" content="GEO·INTEL — Analista IA para a sua empresa" />
-<meta property="og:description" content="Sinais do mercado viram projeções e ações para a sua PME. Mercado, risco e tecnologia o dia todo, por menos de R$30/mês." />
+<title>GEO·INTEL — Analista IA de risco, oportunidade e impacto econômico para pequenos negócios e investidores</title>
+<meta name="description" content="Analista IA de risco, oportunidade e impacto econômico para pequenos negócios, MEIs, PMEs e investidores no Brasil: política, mercado, bolsa, câmbio, comércio exterior, logística, geopolítica e tecnologia viram cenário, impacto e caminho de ação. PT/EN, por menos de R$30/mês." />
+<meta property="og:title" content="GEO·INTEL — Entenda o impacto antes de decidir" />
+<meta property="og:description" content="Sinais nacionais e globais viram cenários, impacto provável e caminhos de ação para pequenos negócios, PMEs e investidores. Por menos de R$30/mês." />
 <meta property="og:type" content="website" />
 <meta name="robots" content="index,follow" />
 <style>
@@ -52,13 +52,16 @@
   .btn.wpp{border-color:var(--green);color:var(--green)}
   .gen{color:var(--muted);font-size:12.5px}
   #globe{width:100%;max-width:520px;aspect-ratio:1;margin-left:auto;display:block}
+  .radar{margin:10px auto 0;max-width:520px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}
+  .radar .w{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-variant-numeric:tabular-nums}
+  .radar .w.on{color:var(--accent);border-color:var(--accent);font-weight:700}
   section.block{padding:88px 0;border-top:1px solid var(--line);position:relative}
   .eyebrow{color:var(--accent);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
   .block h2{font-size:clamp(23px,3vw,38px);font-weight:800;letter-spacing:-.5px;max-width:780px}
   .block .lead{color:var(--muted);font-size:16px;margin-top:12px;max-width:640px}
   .reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
-  .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-top:28px}
   .cardlite{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
   .cardlite .ic{font-size:22px} .cardlite b{display:block;margin:8px 0 4px} .cardlite span{color:var(--muted);font-size:13.5px}
   .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px;counter-reset:s}
@@ -79,6 +82,8 @@
   .ev .sev{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;border:1px solid var(--line)}
   .ev h3{font-size:17px;margin:12px 0 6px;font-weight:700;line-height:1.3}
   .ev .res{color:var(--muted);font-size:14px;margin-bottom:10px}
+  .ev .proj{font-size:13.5px;border-left:3px solid var(--accent);padding:2px 0 2px 10px;margin:0 0 10px}
+  .ev .proj b{color:var(--accent)}
   .ev .act{font-size:14px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
   .ev .act b{color:var(--accent)}
   .ev details{margin-top:12px}
@@ -146,7 +151,10 @@
         <span class="gen" id="gen"></span>
       </div>
     </div>
-    <canvas id="globe" width="1040" height="1040" aria-hidden="true"></canvas>
+    <div>
+      <canvas id="globe" width="1040" height="1040" aria-hidden="true"></canvas>
+      <div class="radar" id="radar" aria-hidden="true"></div>
+    </div>
   </div>
 </div>
 
@@ -212,17 +220,18 @@ const DATA = DATA_PLACEHOLDER;
 const CTA = DATA.cta || {signup:"#", whatsapp:"#"};
 const I18N = {
   pt:{
-    cta_free:"Testar 7 dias grátis", cta_today:"Ver análise de hoje", cta_wpp:"Falar no WhatsApp",
-    kicker:"Analista IA · mercado, risco & tecnologia",
-    h1:'Um analista IA acompanhando <span>mercado, risco e tecnologia</span> para a sua empresa.',
-    sub:"O dia todo, por menos de R$30/mês: sinais de mercado, câmbio, commodities e tecnologia viram projeção, impacto e caminho de ação para a sua PME.",
-    pq_eyebrow:"Para quem é", pq_h:"Feito para pequenas e médias empresas.",
-    audience:[["🏪","Comércio & varejo","Câmbio, consumo e custo de estoque."],["🏭","Indústria & agro","Insumos, commodities e energia."],["🚚","Logística & comex","Frete, rotas, sanções e tarifas."],["💼","Serviços & tech","Regulatório, tecnologia e concorrência."]],
+    cta_free:"Começar teste grátis por 7 dias", cta_today:"Ver análise de hoje", cta_wpp:"Falar no WhatsApp",
+    kicker:"Analista IA · risco, oportunidade e impacto econômico",
+    h1:'Seu analista IA para entender como <span>política, mercado e eventos globais</span> afetam seu negócio, seus investimentos e suas decisões.',
+    sub:"Acompanhe sinais nacionais e globais — economia, bolsa, câmbio, comércio exterior, logística, geopolítica e tecnologia — traduzidos em cenários, impacto provável e caminhos de ação para pequenos negócios, MEIs, PMEs e investidores.",
+    pq_eyebrow:"Para quem é", pq_h:"Feito para quem decide no dia a dia.",
+    audience:[["🧾","Pequenos negócios & MEIs","Custo, caixa e consumo."],["📦","PMEs com estoque / importações","Fornecedores, câmbio e insumos."],["📈","Investidores de bolsa","Contexto de mercado e risco."],["🤝","Anjos & compra de participação","Risco, oportunidade e cenário."],["🧭","Carteira de negócios","Estabilidade e visão de futuro."]],
     como_eyebrow:"Como funciona", como_h:"Do sinal à ação, todo dia.",
     steps:[["Sinais globais","Mercado, câmbio, commodities, tech — PT e EN."],["IA interpreta","Setor, geografia e severidade, sem repetição."],["Projeção & ação","Cenário provável, impacto e caminho de ação."],["Entrega no dia","Nos horários-chave — e-mail e WhatsApp/Telegram."]],
     brief_eyebrow:"Briefing do dia · amostra", brief_h:"Escolha o seu perfil.",
-    brief_lead:"O mesmo dia, lido sob a ótica de quem decide. Fonte original sempre preservada.",
+    brief_lead:"Mesa do Analista: cada sinal vira interpretação → projeção → impacto → caminho de ação, sob a ótica do seu perfil. Fonte original sempre preservada.",
     mkt_eyebrow:"Mercado · 30 dias", mkt_h:"Câmbio, índices e commodities.",
+    cenario:"Cenário provável", radar_label:"Radar ao vivo",
     beta_eyebrow:"Beta fundador", beta_h:"Menos de R$30/mês.",
     beta_p1:"R$29,90/mês", beta_p1b:"· R$19,90 no beta fundador", beta_p2:"7 dias grátis para testar. Cancele quando quiser.",
     hist_eyebrow:"Histórico", hist_h:"Edições anteriores.",
@@ -230,20 +239,21 @@ const I18N = {
     fonte:"fonte", ler:"abrir ↗", sev:"sev", detalhes:"Ver detalhes e fonte",
     top3:"Top 3 riscos de hoje", gerado:"Atualizado", lock:"histórico completo após login",
     mkt_err:"Cotações indisponíveis no momento — tente novamente mais tarde.",
-    disc_text:"Conteúdo informativo, não é recomendação financeira nem jurídica. Fontes originais preservadas e sempre citadas.",
-    footer:"GEO·INTEL — briefing bilíngue por perfil. Beta fundador; login e entrega diária nas próximas etapas."},
+    disc_text:"Conteúdo informativo. Não é recomendação de compra ou venda de ativos, consultoria financeira, jurídica, valuation ou due diligence. Projeções são cenários prováveis, não garantias. Fontes originais preservadas e sempre citadas.",
+    footer:"GEO·INTEL — analista IA por perfil. Beta fundador; login e entrega diária nas próximas etapas."},
   en:{
     cta_free:"Start 7-day free trial", cta_today:"See today's analysis", cta_wpp:"Chat on WhatsApp",
-    kicker:"AI analyst · markets, risk & technology",
-    h1:'An AI analyst tracking <span>markets, risk and technology</span> for your business.',
-    sub:"All day, for under R$30/month: signals from markets, FX, commodities and technology become projection, impact and an action path for your SME.",
-    pq_eyebrow:"Who it's for", pq_h:"Built for small and medium businesses.",
-    audience:[["🏪","Retail & commerce","FX, demand and inventory cost."],["🏭","Industry & agri","Inputs, commodities and energy."],["🚚","Logistics & trade","Freight, routes, sanctions and tariffs."],["💼","Services & tech","Regulation, technology and competition."]],
+    kicker:"AI analyst · risk, opportunity and economic impact",
+    h1:'Your AI analyst to understand how <span>politics, markets and global events</span> affect your business, investments and decisions.',
+    sub:"Track national and global signals — economy, equities, FX, foreign trade, logistics, geopolitics and technology — turned into scenarios, likely impact and action paths for small businesses, MEIs, SMEs and investors.",
+    pq_eyebrow:"Who it's for", pq_h:"Built for everyday decision-makers.",
+    audience:[["🧾","Small business & MEIs","Cost, cash and demand."],["📦","SMEs with stock / imports","Suppliers, FX and inputs."],["📈","Equity investors","Market context and risk."],["🤝","Angels & stake buyers","Risk, opportunity and scenario."],["🧭","Business portfolio","Stability and future outlook."]],
     como_eyebrow:"How it works", como_h:"From signal to action, every day.",
     steps:[["Global signals","Markets, FX, commodities, tech — PT and EN."],["AI interprets","Sector, geography and severity, no repetition."],["Projection & action","Likely scenario, impact and action path."],["Delivered on the day","At key hours — email and WhatsApp/Telegram."]],
     brief_eyebrow:"Today's briefing · sample", brief_h:"Choose your profile.",
-    brief_lead:"The same day, read through a decision-maker's lens. Original source always preserved.",
+    brief_lead:"Analyst desk: each signal becomes interpretation → projection → impact → action path, through your profile's lens. Original source always preserved.",
     mkt_eyebrow:"Markets · 30 days", mkt_h:"FX, indices and commodities.",
+    cenario:"Likely scenario", radar_label:"Live radar",
     beta_eyebrow:"Founder beta", beta_h:"Under R$30/month.",
     beta_p1:"R$29.90/mo", beta_p1b:"· R$19.90 in founder beta", beta_p2:"7-day free trial. Cancel anytime.",
     hist_eyebrow:"History", hist_h:"Previous editions.",
@@ -251,8 +261,8 @@ const I18N = {
     fonte:"source", ler:"open ↗", sev:"sev", detalhes:"See details and source",
     top3:"Today's top 3 risks", gerado:"Updated", lock:"full history after login",
     mkt_err:"Quotes unavailable right now — please try again later.",
-    disc_text:"Informational content, not financial or legal advice. Original sources preserved and always cited.",
-    footer:"GEO·INTEL — bilingual briefing by profile. Founder beta; login and daily delivery next."},
+    disc_text:"Informational content. Not a recommendation to buy or sell assets, nor financial or legal advice, valuation or due diligence. Projections are likely scenarios, not guarantees. Original sources preserved and always cited.",
+    footer:"GEO·INTEL — AI analyst by profile. Founder beta; login and daily delivery next."},
 };
 
 let LANG="pt", PROFILE=(DATA.profiles[0]||{}).id;
@@ -297,6 +307,7 @@ function renderEvents(){
     el.innerHTML=`<div class="h"><span class="tag">${esc(e.editoria)} · ${esc(e.geografia)}</span>
       <span class="sev" style="color:${SEVC(e.severidade)}">${t.sev} ${e.severidade}/5</span></div>
       <h3>${esc(e.titulo)}</h3>${e.resumo?`<div class="res">${esc(e.resumo)}</div>`:''}
+      ${e.projecao?`<div class="proj"><b>🔮 ${esc(t.cenario)}:</b> ${esc(e.projecao)}</div>`:''}
       <div class="act"><b>✅ ${t.acao}:</b> ${esc(e.acao_recomendada)}</div>
       <details><summary>${esc(t.detalhes)}</summary>
         <div class="grid">
@@ -322,7 +333,14 @@ function renderMarket(){
     el.innerHTML=`<div class="top"><div><div class="label">${esc(m.name)}</div><div class="price">—</div></div><div class="chg ${up?'up':'down'}">${up?'▲ +':'▼ '}${Math.abs(m.pct).toFixed(2)}%</div></div><div class="unit">${esc((m.unit&&(m.unit[LANG]||m.unit.pt))||'')}</div><canvas></canvas>`;
     box.appendChild(el);mkCards.push({el,m,ctx:el.querySelector('canvas').getContext('2d'),price:el.querySelector('.price')});});
 }
-function render(){applyI18n();renderStatic();renderTabs();renderTop3();renderEvents();renderHist();renderMarket();}
+function renderRadar(){
+  const t=I18N[LANG],box=document.getElementById('radar');if(!box)return;
+  const wins=['08:15','13:00','17:30'],mins=[495,780,1050];
+  const now=new Date(),h=now.getHours()*60+now.getMinutes();
+  let near=0,best=1e9;mins.forEach((m,i)=>{const d=Math.abs(h-m);if(d<best){best=d;near=i;}});
+  box.innerHTML=`<span>🛰️ ${esc(t.radar_label)}:</span>`+wins.map((w,i)=>`<span class="w${i===near?' on':''}">${w}</span>`).join('');
+}
+function render(){applyI18n();renderStatic();renderTabs();renderTop3();renderEvents();renderHist();renderMarket();renderRadar();}
 render();
 
 /* charts */
@@ -351,12 +369,33 @@ const CONT=[
 ];
 function pip(x,y,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
 const land=[];for(let lat=-56;lat<=80;lat+=2.6)for(let lon=-180;lon<=180;lon+=2.6){for(const k of CONT){if(pip(lon,lat,k.p)){const la=lat*Math.PI/180,lo=lon*Math.PI/180;land.push({x:Math.cos(la)*Math.sin(lo),y:Math.sin(la),z:Math.cos(la)*Math.cos(lo),c:k.c});break;}}}
-const gl=document.getElementById('globe'),gx=gl.getContext('2d');let ang=-0.3;
+function ll(lon,lat){const la=lat*Math.PI/180,lo=lon*Math.PI/180;return{x:Math.cos(la)*Math.sin(lo),y:Math.sin(la),z:Math.cos(la)*Math.cos(lo)};}
+const TH={pol:'#ffb443',geo:'#ff5d63',mkt:'#5aa2ff',ene:'#ff8a5b',log:'#37d39b',tec:'#8fd0ff'};
+const POINTS=[
+ {...ll(-47.9,-15.8),c:TH.pol},{...ll(-77,38.9),c:TH.pol},{...ll(37.6,55.7),c:TH.geo},{...ll(116.4,39.9),c:TH.geo},{...ll(35,31.8),c:TH.geo},
+ {...ll(-74,40.7),c:TH.mkt},{...ll(-46.6,-23.5),c:TH.mkt},{...ll(-0.1,51.5),c:TH.mkt},{...ll(139.7,35.7),c:TH.mkt},
+ {...ll(46.7,24.6),c:TH.ene},{...ll(-95.4,29.8),c:TH.ene},
+ {...ll(4.5,51.9),c:TH.log},{...ll(121.5,31.2),c:TH.log},{...ll(-46.3,-23.9),c:TH.log},{...ll(32.5,30),c:TH.log},
+ {...ll(-122.4,37.8),c:TH.tec},{...ll(77.6,13),c:TH.tec},
+];
+const ARCS=[[ll(116.4,39.9),ll(-46.6,-23.5)],[ll(-77,38.9),ll(-47.9,-15.8)],[ll(121.5,31.2),ll(4.5,51.9)],[ll(46.7,24.6),ll(-95.4,29.8)],[ll(-122.4,37.8),ll(139.7,35.7)]];
+const gl=document.getElementById('globe'),gx=gl.getContext('2d');let ang=-0.3,tg=0;
 function rotp(p,ca,sa){return{x:p.x*ca+p.z*sa,y:p.y,z:-p.x*sa+p.z*ca};}
 function drawGlobe(){const W=gl.width,H=gl.height,cx=W/2,cy=H/2,R=W*0.40;gx.clearRect(0,0,W,H);ang+=0.0022;const ca=Math.cos(ang),sa=Math.sin(ang);
   const og=gx.createRadialGradient(cx-R*.3,cy-R*.3,R*.2,cx,cy,R);og.addColorStop(0,'rgba(30,60,110,.28)');og.addColorStop(1,'rgba(6,14,30,.10)');gx.fillStyle=og;gx.beginPath();gx.arc(cx,cy,R,0,7);gx.fill();
   gx.strokeStyle=cssv('--globeline');gx.lineWidth=1;for(let m=-150;m<=180;m+=30){gx.beginPath();let s=false;for(let la=-90;la<=90;la+=4){const r=rotp({x:Math.cos(la*Math.PI/180)*Math.sin(m*Math.PI/180),y:Math.sin(la*Math.PI/180),z:Math.cos(la*Math.PI/180)*Math.cos(m*Math.PI/180)},ca,sa);if(r.z<0){s=false;continue;}const X=cx+r.x*R,Y=cy-r.y*R;s?gx.lineTo(X,Y):gx.moveTo(X,Y);s=true;}gx.stroke();}
-  for(const p of land){const r=rotp(p,ca,sa);if(r.z<-0.02)continue;const d=(r.z+1)/2;gx.globalAlpha=.25+d*.75;gx.fillStyle=p.c;gx.beginPath();gx.arc(cx+r.x*R,cy-r.y*R,1.5*(.5+d),0,7);gx.fill();}gx.globalAlpha=1;}
+  for(const p of land){const r=rotp(p,ca,sa);if(r.z<-0.02)continue;const d=(r.z+1)/2;gx.globalAlpha=.25+d*.75;gx.fillStyle=p.c;gx.beginPath();gx.arc(cx+r.x*R,cy-r.y*R,1.5*(.5+d),0,7);gx.fill();}gx.globalAlpha=1;
+  tg+=0.05;
+  // arcos (linhas de evento entre regiões)
+  gx.lineWidth=1.1;gx.strokeStyle='rgba(90,162,255,.4)';
+  for(const [a,b] of ARCS){gx.beginPath();let st=false;
+    for(let s=0;s<=1.0001;s+=0.05){let x=a.x+(b.x-a.x)*s,y=a.y+(b.y-a.y)*s,z=a.z+(b.z-a.z)*s;const L=Math.hypot(x,y,z)||1;x/=L;y/=L;z/=L;const lift=1+0.16*Math.sin(Math.PI*s);const r=rotp({x:x*lift,y:y*lift,z:z*lift},ca,sa);if(r.z<-0.1){st=false;continue;}const X=cx+r.x*R,Y=cy-r.y*R;st?gx.lineTo(X,Y):gx.moveTo(X,Y);st=true;}gx.stroke();}
+  // pontos temáticos pulsando
+  const pulse=(Math.sin(tg)+1)/2;
+  for(const p of POINTS){const r=rotp(p,ca,sa);if(r.z<0)continue;const X=cx+r.x*R,Y=cy-r.y*R;
+    gx.fillStyle=p.c;gx.globalAlpha=.95;gx.beginPath();gx.arc(X,Y,2.8,0,7);gx.fill();
+    gx.globalAlpha=.28*(1-pulse*.5);gx.beginPath();gx.arc(X,Y,4+pulse*10,0,7);gx.fill();gx.globalAlpha=1;}
+}
 const sky=document.getElementById('stars'),sxc=sky.getContext('2d');let stars=[];
 function initStars(){sky.width=innerWidth;sky.height=innerHeight;stars=[...Array(110)].map(()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.3+.2,s:Math.random()*.35+.05}));}
 initStars();addEventListener('resize',initStars);
