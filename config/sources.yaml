@@ -1,0 +1,246 @@
+# =============================================================================
+# Fontes de ingestão — plataforma GLOBAL-FIRST, bilíngue PT/EN.
+#
+# Cada fonte carrega metadados para permitir cobertura global + local,
+# preservação do idioma original e tradução bidirecional PT⇄EN:
+#   name, url, sector, type, enabled,
+#   language (idioma original: pt|en|es|...),
+#   region   (global|americas|europe|asia|africa|brazil|...),
+#   country  (ISO-2: US|BR|GB|... ou "" / INT p/ organismos internacionais),
+#   tier     (official|media|aggregator)
+#
+# Todos os feeds abaixo foram VALIDADOS ao vivo. Revalide com:
+#     python -m tools.validate_sources
+# Para desativar sem apagar: enabled: false
+# =============================================================================
+
+defaults:
+  type: rss
+  timeout_seconds: 15
+  user_agent: "GeoIntelMonitor/0.1 (+https://example.com)"
+  language: en
+  region: global
+  country: ""
+  tier: media
+  max_entries: 40      # teto de itens por fonte (override por env MAX_ENTRIES_PER_SOURCE)
+  max_age_days: 0      # 0 = desligado; >0 (env MAX_AGE_DAYS) descarta itens antigos
+
+sources:
+  # ----------------------------- ENERGIA --------------------------------------
+  - name: "EIA — Today in Energy"
+    url: "https://www.eia.gov/rss/todayinenergy.xml"
+    sector: energia
+    language: en
+    region: global
+    country: US
+    tier: official
+    enabled: true
+
+  - name: "OilPrice — Energy News"
+    url: "https://oilprice.com/rss/main"
+    sector: energia
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  # ----------------------------- PETRÓLEO -------------------------------------
+  - name: "Rigzone — News"
+    url: "https://www.rigzone.com/news/rss/rigzone_latest.aspx"
+    sector: petroleo
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "Google News — Oil / OPEC / Crude"
+    url: "https://news.google.com/rss/search?q=oil+prices+OR+crude+oil+OR+OPEC&hl=en-US&gl=US&ceid=US:en"
+    sector: petroleo
+    language: en
+    region: global
+    country: ""
+    tier: aggregator
+    enabled: true
+
+  # ------------------------------- CYBER --------------------------------------
+  - name: "CISA — Cybersecurity Advisories"
+    url: "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+    sector: cyber
+    language: en
+    region: global
+    country: US
+    tier: official
+    enabled: true
+
+  - name: "BleepingComputer"
+    url: "https://www.bleepingcomputer.com/feed/"
+    sector: cyber
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "The Hacker News"
+    url: "https://feeds.feedburner.com/TheHackersNews"
+    sector: cyber
+    language: en
+    region: global
+    country: IN
+    tier: media
+    enabled: true
+
+  - name: "Krebs on Security"
+    url: "https://krebsonsecurity.com/feed/"
+    sector: cyber
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  # --------------------------- FERTILIZANTES ----------------------------------
+  - name: "Google News — Fertilizers / Commodities"
+    url: "https://news.google.com/rss/search?q=fertilizer+OR+potash+OR+urea+OR+commodities&hl=en-US&gl=US&ceid=US:en"
+    sector: fertilizantes
+    language: en
+    region: global
+    country: ""
+    tier: aggregator
+    enabled: true
+
+  # ------------------------------ INSUMOS -------------------------------------
+  - name: "Mining.com — News"
+    url: "https://www.mining.com/feed/"
+    sector: insumos
+    language: en
+    region: global
+    country: CA
+    tier: media
+    enabled: true
+
+  # ----------------------------- ALIMENTOS ------------------------------------
+  - name: "World-Grain — Articles"
+    url: "https://www.world-grain.com/rss/articles"
+    sector: alimentos
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "Google News — Food Security / Grain Exports"
+    url: "https://news.google.com/rss/search?q=food+security+OR+grain+exports+OR+harvest&hl=en-US&gl=US&ceid=US:en"
+    sector: alimentos
+    language: en
+    region: global
+    country: ""
+    tier: aggregator
+    enabled: true
+
+  # ---------------------------- EXPORTAÇÕES -----------------------------------
+  - name: "WTO — News"
+    url: "https://www.wto.org/library/rss/latest_news_e.xml"
+    sector: exportacoes
+    language: en
+    region: global
+    country: INT
+    tier: official
+    enabled: true
+
+  - name: "Google News — Export Controls / Sanctions / Trade"
+    url: "https://news.google.com/rss/search?q=export+controls+OR+sanctions+OR+trade+restrictions&hl=en-US&gl=US&ceid=US:en"
+    sector: exportacoes
+    language: en
+    region: global
+    country: ""
+    tier: aggregator
+    enabled: true
+
+  # --------------------------- GEOPOLÍTICA / MACRO ----------------------------
+  - name: "UN News"
+    url: "https://news.un.org/feed/subscribe/en/news/all/rss.xml"
+    sector: geopolitica
+    language: en
+    region: global
+    country: INT
+    tier: official
+    enabled: true
+
+  # ----------------------- TECNOLOGIA & INOVAÇÃO ------------------------------
+  - name: "TechCrunch"
+    url: "https://techcrunch.com/feed/"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "The Verge"
+    url: "https://www.theverge.com/rss/index.xml"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "MIT Technology Review"
+    url: "https://www.technologyreview.com/feed/"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: media
+    enabled: true
+
+  - name: "Google AI Blog"
+    url: "https://blog.google/technology/ai/rss/"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: official
+    enabled: true
+
+  - name: "OpenAI News"
+    url: "https://openai.com/news/rss.xml"
+    sector: tecnologia
+    language: en
+    region: global
+    country: US
+    tier: official
+    max_entries: 15
+    enabled: true
+
+  - name: "Google DeepMind Blog"
+    url: "https://deepmind.google/blog/rss.xml"
+    sector: tecnologia
+    language: en
+    region: global
+    country: GB
+    tier: official
+    enabled: true
+
+  # --------------------------- BRASIL / LATAM ---------------------------------
+  # Fontes em PORTUGUÊS: exercitam a tradução/adaptação PT -> EN.
+  - name: "Agência Brasil"
+    url: "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml"
+    sector: economia
+    language: pt
+    region: brazil
+    country: BR
+    tier: media
+    enabled: true
+
+  - name: "Google News BR — Economia / Selic / PIB"
+    url: "https://news.google.com/rss/search?q=economia+OR+Selic+OR+PIB+Brasil&hl=pt-BR&gl=BR&ceid=BR:pt"
+    sector: economia
+    language: pt
+    region: brazil
+    country: BR
+    tier: aggregator
+    enabled: true

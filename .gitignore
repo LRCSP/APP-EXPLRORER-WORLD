@@ -1,0 +1,39 @@
+# Segredos — NUNCA comitar
+.env
+secrets/
+*.json.key
+google-service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Saídas geradas (briefings DOCX, dumps locais)
+out/
+*.docx
+!docs/**/*.docx
+
+# Site gerado (build a partir de web/template.html via tools.export_web) — não versionar
+web/index.html
+web/data.json
+
+# Ambientes virtuais de verificação
+.venv_verify/
+
+# Cache / dedup
+.cache/
+*.sqlite
+*.db
+
+# IDE / SO
+.idea/
+.vscode/
+.DS_Store

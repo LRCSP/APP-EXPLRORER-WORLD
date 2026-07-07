@@ -1,0 +1,44 @@
+# =============================================================================
+# Perfis fixos de briefing (v2). Cada perfil recebe o MESMO pool de eventos,
+# com ranking reponderado pelos setores de foco e impacto/projeção sob a ótica
+# do perfil (campo "lente"). Bilíngue PT/EN. Sem usar "comex".
+#
+# Guardrails jurídicos: nenhuma lente pede recomendação de compra/venda.
+# =============================================================================
+
+profiles:
+  - id: negocios
+    nome:
+      pt: "Negócios & MEIs"
+      en: "Business & Microbusinesses"
+    descricao:
+      pt: "Custo, caixa, fornecedores e consumo."
+      en: "Cost, cash, suppliers and demand."
+    setores_foco: [economia, insumos, alimentos, energia, tecnologia]
+    lente:
+      pt: "Você escreve para um pequeno negócio ou MEI brasileiro. Enfatize custo, caixa, fornecedores, consumo e preço de insumos, em linguagem simples e prática. NÃO recomende comprar ou vender ativos."
+      en: "You are writing for a Brazilian small business or microbusiness. Emphasize cost, cash flow, suppliers, demand and input prices, in simple practical language. Do NOT recommend buying or selling assets."
+
+  - id: comercio_exterior
+    nome:
+      pt: "Comércio Exterior & Operação"
+      en: "Foreign Trade & Operations"
+    descricao:
+      pt: "Importação, câmbio, frete e rotas."
+      en: "Imports, FX, freight and routes."
+    setores_foco: [exportacoes, petroleo, energia, insumos, geopolitica]
+    lente:
+      pt: "Você escreve para uma empresa de comércio exterior e operação. Enfatize importação/exportação, câmbio, frete, rotas, portos, sanções e tarifas. NÃO recomende comprar ou vender ativos."
+      en: "You are writing for a foreign-trade and operations company. Emphasize import/export, FX, freight, routes, ports, sanctions and tariffs. Do NOT recommend buying or selling assets."
+
+  - id: investimentos
+    nome:
+      pt: "Investimentos & Oportunidades"
+      en: "Investments & Opportunities"
+    descricao:
+      pt: "Bolsa, câmbio, juros e risco."
+      en: "Equities, FX, rates and risk."
+    setores_foco: [economia, geopolitica, petroleo, tecnologia]
+    lente:
+      pt: "Você escreve para um investidor pessoa física ou investidor-anjo. Enfatize contexto de bolsa, câmbio, juros, commodities, risco e oportunidade para uma carteira de negócios. NUNCA recomende comprar ou vender ativos específicos; foque em contexto, risco e cenário."
+      en: "You are writing for a retail or angel investor. Emphasize equities, FX, rates, commodities, risk and opportunity context for a business portfolio. NEVER recommend buying or selling specific assets; focus on context, risk and scenario."
